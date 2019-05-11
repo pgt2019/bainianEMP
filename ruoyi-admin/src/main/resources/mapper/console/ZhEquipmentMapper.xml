@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.console.mapper.ZhEquipmentMapper">
+    
+    <resultMap type="ZhEquipment" id="ZhEquipmentResult">
+        <result property="id"    column="id"    />
+        <result property="meid"    column="meid"    />
+        <result property="regkey"    column="regkey"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+	
+	<sql id="selectZhEquipmentVo">
+        select id, meid, regkey, create_by, create_time from zh_equipment
+    </sql>
+	
+    <select id="selectZhEquipmentList" parameterType="ZhEquipment" resultMap="ZhEquipmentResult">
+        <include refid="selectZhEquipmentVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="meid != null  and meid != '' "> and meid = #{meid}</if>
+             <if test="regkey != null  and regkey != '' "> and regkey = #{regkey}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+         </where>
+    </select>
+    
+    <select id="selectZhEquipmentById" parameterType="Integer" resultMap="ZhEquipmentResult">
+        <include refid="selectZhEquipmentVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertZhEquipment" parameterType="ZhEquipment">
+        insert into zh_equipment
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">id,</if>
+			<if test="meid != null  and meid != ''  ">meid,</if>
+			<if test="regkey != null  and regkey != ''  ">regkey,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">#{id},</if>
+			<if test="meid != null  and meid != ''  ">#{meid},</if>
+			<if test="regkey != null  and regkey != ''  ">#{regkey},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateZhEquipment" parameterType="ZhEquipment">
+        update zh_equipment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="meid != null  and meid != ''  ">meid = #{meid},</if>
+            <if test="regkey != null  and regkey != ''  ">regkey = #{regkey},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteZhEquipmentById" parameterType="Integer">
+        delete from zh_equipment where id = #{id}
+    </delete>
+	
+    <delete id="deleteZhEquipmentByIds" parameterType="String">
+        delete from zh_equipment where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.console.mapper.ZhUserMapper">
+    
+    <resultMap type="ZhUser" id="ZhUserResult">
+        <result property="id"    column="id"    />
+        <result property="
+personNumber"    column="
+personNumber"    />
+        <result property="
+name"    column="
+name"    />
+        <result property="
+icCard"    column="
+icCard"    />
+        <result property="
+idCard"    column="
+idCard"    />
+        <result property="
+extendInfo"    column="
+extendInfo"    />
+        <result property="syncTime"    column="sync_time"    />
+    </resultMap>
+	
+	<sql id="selectZhUserVo">
+        select id, 
+personNumber, 
+name, 
+icCard, 
+idCard, 
+extendInfo, sync_time from zh_user
+    </sql>
+	
+    <select id="selectZhUserList" parameterType="ZhUser" resultMap="ZhUserResult">
+        <include refid="selectZhUserVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="
+personNumber != null  and personNumber != '' "> and 
+personNumber = #{
+personNumber}</if>
+             <if test="
+name != null  and name != '' "> and 
+name = #{
+name}</if>
+             <if test="
+icCard != null  and icCard != '' "> and 
+icCard = #{
+icCard}</if>
+             <if test="
+idCard != null  and idCard != '' "> and 
+idCard = #{
+idCard}</if>
+             <if test="
+extendInfo != null  and extendInfo != '' "> and 
+extendInfo = #{
+extendInfo}</if>
+             <if test="syncTime != null "> and sync_time = #{syncTime}</if>
+         </where>
+    </select>
+    
+    <select id="selectZhUserById" parameterType="Integer" resultMap="ZhUserResult">
+        <include refid="selectZhUserVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertZhUser" parameterType="ZhUser">
+        insert into zh_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">id,</if>
+			<if test="
+personNumber != null  and 
+personNumber != ''  ">
+personNumber,</if>
+			<if test="
+name != null  and 
+name != ''  ">
+name,</if>
+			<if test="
+icCard != null  and 
+icCard != ''  ">
+icCard,</if>
+			<if test="
+idCard != null  and 
+idCard != ''  ">
+idCard,</if>
+			<if test="
+extendInfo != null  and 
+extendInfo != ''  ">
+extendInfo,</if>
+			<if test="syncTime != null  ">sync_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">#{id},</if>
+			<if test="
+personNumber != null  and 
+personNumber != ''  ">#{
+personNumber},</if>
+			<if test="
+name != null  and 
+name != ''  ">#{
+name},</if>
+			<if test="
+icCard != null  and 
+icCard != ''  ">#{
+icCard},</if>
+			<if test="
+idCard != null  and 
+idCard != ''  ">#{
+idCard},</if>
+			<if test="
+extendInfo != null  and 
+extendInfo != ''  ">#{
+extendInfo},</if>
+			<if test="syncTime != null  ">#{syncTime},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateZhUser" parameterType="ZhUser">
+        update zh_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="
+personNumber != null  and 
+personNumber != ''  ">
+personNumber = #{
+personNumber},</if>
+            <if test="
+name != null  and 
+name != ''  ">
+name = #{
+name},</if>
+            <if test="
+icCard != null  and 
+icCard != ''  ">
+icCard = #{
+icCard},</if>
+            <if test="
+idCard != null  and 
+idCard != ''  ">
+idCard = #{
+idCard},</if>
+            <if test="
+extendInfo != null  and 
+extendInfo != ''  ">
+extendInfo = #{
+extendInfo},</if>
+            <if test="syncTime != null  ">sync_time = #{syncTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteZhUserById" parameterType="Integer">
+        delete from zh_user where id = #{id}
+    </delete>
+	
+    <delete id="deleteZhUserByIds" parameterType="String">
+        delete from zh_user where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>
