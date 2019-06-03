@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('识别记录')" />
+
+</head>
+
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+<link th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+<link th:href="@{/css/animate.css}" rel="stylesheet"/>
+<link th:href="@{/css/style.css}" rel="stylesheet"/>
+<link th:href="@{/css/skins.css}" rel="stylesheet"/>
+<link th:href="@{/ruoyi/css/ry-ui.css?v=3.3.0}" rel="stylesheet"/>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/ruoyi/js/bigImg.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/ajax/libs/bootstrap-table/bootstrap-table.min.js}"></script>
+<script th:src="@{/ajax/libs/bootstrap-table/locale/bootstrap-table-zh-CN.js}"></script>
+<script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script th:src="@{/ruoyi/js/ry-ui.js?v=3.3.0}"></script>
+<script th:src="@{/ajax/libs/fullscreen/jquery.fullscreen.js}"></script>
+<script th:src="@{/ajax/libs/blockUI/jquery.blockUI.js}"></script>
+
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+        <form id="formId">
+            <div class="select-list">
+                <ul>
+                    <li>
+                        人员编号：<input type="text" name="recognizePersonNumber"/>
+                    </li>
+                    <li>
+                        返回条数（默认为10条）：<input type="text" name="params[queryLength]"/>
+                    </li>
+                    <!--<li class="select-time">-->
+                        <!--<label>记录时间： </label>-->
+                        <!--<input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginTime]"/>-->
+                        <!--<span>-</span>-->
+                        <!--<input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endTime]"/>-->
+                    <!--</li>-->
+                    <li>
+                        <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                        <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                    </li>
+                </ul>
+            </div>
+        </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <!--<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="console:zhEquipment:add">-->
+                <!--<i class="fa fa-plus"></i> 添加-->
+            <!--</a>-->
+            <!--<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="console:zhEquipment:edit">-->
+                <!--<i class="fa fa-edit"></i> 修改-->
+            <!--</a>-->
+            <!--<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.userdelete()" shiro:hasPermission="console:zhEquipment:remove">-->
+                <!--<i class="fa fa-remove"></i> 删除-->
+            <!--</a>-->
+            <!--<a class="btn btn-success" onclick="$.operate.manage()" shiro:hasPermission="console:zhEquipment:manage">-->
+            <!--<i class="fa fa-plus"></i> 管理-->
+            <!--</a>-->
+            <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="console:zhEquipment:export">-->
+            <!--<i class="fa fa-download"></i> 导出-->
+            <!--</a>-->
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; </script>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('console:zhEquipment:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('console:zhEquipment:remove')}]];
+    var manageFlag = [[${@permission.hasPermi('console:zhEquipment:manage')}]];
+    var prefix = ctx + "console/zhEquipment";
+
+    $(function() {
+        var options = {
+            url: prefix + "/getRecord",
+            // createUrl: prefix + "/addUser",
+            // faceImageManageUrl: prefix + "/faceImageManage/{personNumber}",
+            // updateUrl: prefix + "/zhUser/update/{id}",
+            // removeUrl: prefix + "/zhUser/remove",
+            // manageUrl: prefix + "/manage/{id}",
+            // exportUrl: prefix + "/export",
+            modalName: "识别记录",
+            showExport: false,
+            smartDisplay:false,
+            pagination:true,
+            onlyInfoPagination:true,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field : 'recognizePersonNumber',
+                    title : '人员编号',
+                    sortable: true
+                },
+                {
+                    field : 'name',
+                    title : '人员名称',
+                    sortable: true
+                },
+                {
+                    field : 'recognizeTime',
+                    title : '识别时间',
+                    sortable: true
+                },
+                {
+                    field : 'recognizeType',
+                    title : '识别类型',
+                    sortable: true
+                },
+                {
+                    field : 'path',
+                    title : '识别照片',
+                    sortable:true
+                }]
+        };
+        $.table.init(options);
+    });
+
+</script>
+</body>
+</html>

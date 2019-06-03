@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('设备用户信息修改')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-zhEquipment-edit" th:object="${zhUser}">
+        <input id="id" name="personNumber" th:field="*{personNumber}"  type="hidden">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">姓名：</label>
+            <div class="col-sm-8">
+                <input id="meid" name="meid" th:field="*{name}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">ic卡号：</label>
+            <div class="col-sm-8">
+                <input id="key" name="key" th:field="*{icCard}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">id卡号：</label>
+            <div class="col-sm-8">
+                <input id="createBy" name="createBy" th:field="*{idCard}" class="form-control" type="text">
+            </div>
+        </div>
+
+        <!--<div class="form-group">	-->
+        <!--<label class="col-sm-3 control-label">创建时间：</label>-->
+        <!--<div class="col-sm-8">-->
+        <!--<input id="createTime" name="createTime" th:field="*{createTime}" class="form-control" type="text">-->
+        <!--</div>-->
+        <!--</div>-->
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; </script>
+<script type="text/javascript">
+    var prefix = ctx + "console/zhEquipment";
+    $("#form-zhEquipment-edit").validate({
+        rules:{
+            xxxx:{
+                required:true,
+            },
+        },
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/zhUser/update", $('#form-zhEquipment-edit').serialize());
+        }
+    }
+</script>
+</body>
+</html>

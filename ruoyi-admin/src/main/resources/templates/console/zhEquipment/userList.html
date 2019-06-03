@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('人员信息管理')" />
+
+</head>
+
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+<link th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+<link th:href="@{/css/animate.css}" rel="stylesheet"/>
+<link th:href="@{/css/style.css}" rel="stylesheet"/>
+<link th:href="@{/css/skins.css}" rel="stylesheet"/>
+<link th:href="@{/ruoyi/css/ry-ui.css?v=3.3.0}" rel="stylesheet"/>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/ruoyi/js/bigImg.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/ajax/libs/bootstrap-table/bootstrap-table.min.js}"></script>
+<script th:src="@{/ajax/libs/bootstrap-table/locale/bootstrap-table-zh-CN.js}"></script>
+<script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script th:src="@{/ruoyi/js/ry-ui.js?v=3.3.0}"></script>
+<script th:src="@{/ajax/libs/fullscreen/jquery.fullscreen.js}"></script>
+<script th:src="@{/ajax/libs/blockUI/jquery.blockUI.js}"></script>
+
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <!--<div class="col-sm-12 search-collapse">-->
+            <!--<form id="formId">-->
+                <!--&lt;!&ndash;<div class="select-list">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<ul>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;人员编号：<input type="text" name="personNumber"/>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</li>&ndash;&gt;-->
+
+                        <!--&lt;!&ndash;<li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;姓名：<input type="text" name="name"/>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</li>&ndash;&gt;-->
+
+                        <!--&lt;!&ndash;<li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;ic卡号：<input type="text" name="idCard"/>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</li>&ndash;&gt;-->
+
+                        <!--&lt;!&ndash;<li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;身份证编号：<input type="text" name="idCard"/>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</li>&ndash;&gt;-->
+
+                        <!--&lt;!&ndash;&lt;!&ndash;<li>&ndash;&gt;&ndash;&gt;-->
+                            <!--&lt;!&ndash;&lt;!&ndash;<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>&ndash;&gt;&ndash;&gt;-->
+                            <!--&lt;!&ndash;&lt;!&ndash;<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>&ndash;&gt;&ndash;&gt;-->
+                        <!--&lt;!&ndash;&lt;!&ndash;</li>&ndash;&gt;&ndash;&gt;-->
+                    <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+            <!--</form>-->
+        <!--</div>-->
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="console:zhEquipment:add">
+            <i class="fa fa-plus"></i> 添加
+            </a>
+            <a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="console:zhEquipment:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.userdelete()" shiro:hasPermission="console:zhEquipment:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <!--<a class="btn btn-success" onclick="$.operate.manage()" shiro:hasPermission="console:zhEquipment:manage">-->
+            <!--<i class="fa fa-plus"></i> 管理-->
+            <!--</a>-->
+            <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="console:zhEquipment:export">-->
+            <!--<i class="fa fa-download"></i> 导出-->
+            <!--</a>-->
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; </script>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('console:zhEquipment:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('console:zhEquipment:remove')}]];
+    var manageFlag = [[${@permission.hasPermi('console:zhEquipment:manage')}]];
+    var prefix = ctx + "console/zhEquipment";
+
+    $(function() {
+        var options = {
+            url: prefix + "/getUser",
+            createUrl: prefix + "/addUser",
+            faceImageManageUrl: prefix + "/faceImageManage/{personNumber}",
+            updateUrl: prefix + "/zhUser/update/{id}",
+            removeUrl: prefix + "/zhUser/remove",
+            // manageUrl: prefix + "/manage/{id}",
+            // exportUrl: prefix + "/export",
+            modalName: "人员信息管理",
+            showExport: false,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field : 'personNumber',
+                    title : '人员编号',
+                    sortable: true
+                },
+                {
+                    field : 'name',
+                    title : '姓名',
+                    sortable: true
+                },
+                {
+                    field : 'icCard',
+                    title : 'ic卡号',
+                    sortable: true
+                },
+                {
+                    field : 'idCard',
+                    title : '身份证编号',
+                    sortable: true
+                },
+                {
+                    field : 'faceImages',
+                    title : '图片',
+                    sortable:true
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-primary btn-xs ' + manageFlag + '" href="#" onclick="$.operate.faceImageManage(\'' + row.personNumber + '\')"><i class="fa fa-android"></i>人脸库管理</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+</script>
+</body>
+</html>

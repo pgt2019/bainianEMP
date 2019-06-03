@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('人脸库')" />
+
+</head>
+
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+<link th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+<link th:href="@{/css/animate.css}" rel="stylesheet"/>
+<link th:href="@{/css/style.css}" rel="stylesheet"/>
+<link th:href="@{/css/skins.css}" rel="stylesheet"/>
+<link th:href="@{/ruoyi/css/ry-ui.css?v=3.3.0}" rel="stylesheet"/>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/ajax/libs/blockUI/jquery.blockUI.js}"></script>
+<!--<script th:src="@{/ruoyi/js/bigImg.js}"></script>-->
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/ajax/libs/bootstrap-table/bootstrap-table.min.js}"></script>
+<script th:src="@{/ajax/libs/bootstrap-table/locale/bootstrap-table-zh-CN.js}"></script>
+<script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script th:src="@{/ruoyi/js/ry-ui.js?v=3.3.0}"></script>
+<script th:src="@{/ajax/libs/fullscreen/jquery.fullscreen.js}"></script>
+
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="console:zhEquipment:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <!--<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="console:zhEquipment:edit">-->
+            <!--<i class="fa fa-edit"></i> 修改-->
+            <!--</a>-->
+            <!--<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="console:zhEquipment:remove">-->
+            <!--<i class="fa fa-remove"></i> 删除-->
+            <!--</a>-->
+            <!--<a class="btn btn-success" onclick="$.operate.manage()" shiro:hasPermission="console:zhEquipment:manage">-->
+            <!--<i class="fa fa-plus"></i> 管理-->
+            <!--</a>-->
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; </script>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('console:zhEquipment:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('console:zhEquipment:remove')}]];
+    var manageFlag = [[${@permission.hasPermi('console:zhEquipment:manage')}]];
+    var prefix = ctx + "console/zhEquipment";
+
+    $(function() {
+        var options = {
+            url: prefix + "/faceImageManage",
+            createUrl: prefix + "/faceImageManage/add",
+            removeUrl: prefix + "/faceImageManage/remove/{id}",
+            modalName: "人脸库",
+            showExport: false,
+            columns: [{
+                checkbox: false
+            },
+                {
+                    field : 'id',
+                    title : 'id',
+                    visible: true
+                },
+                {
+                    field : 'url',
+                    title : '图片',
+                    sortable:true
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-primary btn-xs ' + manageFlag + '" href="#" onclick="$.operate.removeFaceImage(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+</script>
+</body>
+</html>

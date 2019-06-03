@@ -563,6 +563,12 @@
                 if ($.common.isEmpty(height)) {
                 	height = ($(window).height() - 50);
                 };
+
+                if(width == 'max' || height == 'max') {
+                    width = $(window).width();
+                    height = $(window).height();
+                }
+
                 if ($.common.isEmpty(callback)) {
                     callback = function(index, layero) {
                         var iframeWin = layero.find('iframe')[0];
@@ -586,6 +592,54 @@
             	        return true;
             	    }
             	});
+            },
+			//不存在按钮弹出层
+            openBN: function (title, url, width, height, callback) {
+                //如果是移动端，就使用自适应大小弹窗
+                if (navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i)) {
+                    width = 'auto';
+                    height = 'auto';
+                }
+                if ($.common.isEmpty(title)) {
+                    title = false;
+                };
+                if ($.common.isEmpty(url)) {
+                    url = "/404.html";
+                };
+                if ($.common.isEmpty(width)) {
+                    width = 800;
+                };
+                if ($.common.isEmpty(height)) {
+                    height = ($(window).height() - 50);
+                };
+
+                if(width == 'max' || height == 'max') {
+                    width = $(window).width();
+                    height = $(window).height();
+                }
+
+                if ($.common.isEmpty(callback)) {
+                    callback = function(index, layero) {
+                        var iframeWin = layero.find('iframe')[0];
+                        iframeWin.contentWindow.submitHandler();
+                    }
+                }
+                layer.open({
+                    type: 2,
+                    area: [width + 'px', height + 'px'],
+                    fix: false,
+                    //不固定
+                    maxmin: true,
+                    shade: 0.3,
+                    title: title,
+                    content: url,
+                    // 弹层外区域关闭
+                    shadeClose: true,
+                    yes: callback,
+                    cancel: function(index) {
+                        return true;
+                    }
+                });
             },
             // 弹出层指定参数选项
             openOptions: function (options) {
@@ -694,6 +748,7 @@
         	        },
         	        success: function(result) {
         	        	$.operate.ajaxSuccess(result);
+                        $.table.refresh();
         	        }
         	    };
         	    $.ajax(config)
@@ -732,6 +787,62 @@
             			return true;
          	        }
             	});
+            },
+            //人脸库管理
+            faceImageManage:function(personNumber){
+                $.modal.openBN("人脸库管理",$.operate.faceImageMUrl(personNumber),'max','max');
+        	 },
+            faceImageMUrl: function(personNumber) {
+                var url = $.common.isEmpty(personNumber) ? $.table._option.faceImageManageUrl : $.table._option.faceImageManageUrl.replace("{personNumber}", personNumber);
+                return url;
+            },
+            // 删除信息
+            removeFaceImage: function(id) {
+                $.modal.confirm("确定删除该" + $.table._option.modalName + "照片吗？", function() {
+                    var url = $.common.isEmpty(id) ? $.table._option.removeUrl : $.table._option.removeUrl.replace("{id}", id);
+					var data = { "id": id };
+					$.operate.submit(url, "post", "json", data);
+                });
+
+            },
+			//人员管理
+			manageUser:function(){
+                $.modal.openBN("人员管理",$.table._option.manageUrl,'max','max');
+			},
+			userdelete:function(){
+                var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                $.modal.confirm("确认要删除选中的" + rows.length + "条数据吗?", function() {
+                    var url = $.table._option.removeUrl;
+                    alert(url)
+                    var data = { "ids": rows.join() };
+                    $.operate.submit(url, "post", "json", data);
+                });
+			},
+            // 修改信息
+            editUser: function(id) {
+                if($.common.isEmpty(id) && $.table._option.type == table_type.bootstrapTreeTable) {
+                    var row = $('#' + $.table._option.id).bootstrapTreeTable('getSelections')[0];
+                    if ($.common.isEmpty(row)) {
+                        $.modal.alertWarning("请至少选择一条记录");
+                        return;
+                    }
+                    var url = $.table._option.updateUrl.replace("{id}", row[$.table._option.uniqueId]);
+                    $.modal.open("修改" + $.table._option.modalName, url);
+                } else {
+                    $.modal.open("修改" + $.table._option.modalName, $.operate.editUrl(id));
+                }
+            },
+			//设备管理
+            manage: function(id) {
+                $.modal.openBN("设备管理",$.operate.manageUrl(id),'max','max');
+            },
+            manageUrl: function(id) {
+                var url = $.common.isEmpty(id) ? $.table._option.manageUrl : $.table._option.manageUrl.replace("{id}", id);
+                return url;
             },
             // 删除信息
             remove: function(id) {
@@ -1234,6 +1345,14 @@
                     }
                 }
                 return result;
+            },
+            onSwitchChange : function(event, state) {
+                var isornotId = event.target.id;//input的id
+                if (state) {//改input的值
+                    $("#" + isornotId).val("1");
+                } else {
+                    $("#" + isornotId).val("0");
+                }
             }
         }
     });

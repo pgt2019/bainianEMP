@@ -36,8 +36,23 @@
     <!-- 依赖声明 -->
     <dependencyManagement>
         <dependencies>
-        
-            <!-- SpringBoot的依赖配置-->
+
+			<!-- https://mvnrepository.com/artifact/org.json/json -->
+			<dependency>
+				<groupId>net.sf.json-lib</groupId>
+				<artifactId>json-lib</artifactId>
+				<version>2.4</version>
+				<classifier>jdk15</classifier>
+			</dependency>
+
+			<!-- alibaba fastJSON -->
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>fastjson</artifactId>
+				<version>1.2.41</version>
+			</dependency>
+
+			<!-- SpringBoot的依赖配置-->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>

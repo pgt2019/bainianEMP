@@ -26,9 +26,11 @@ public class ZhUser extends BaseEntity
 	/** id卡号 */
 	private String idCard;
 	/** 扩展字段 */
-	private String extendInfo;
-	/** 最后一次同步时间 */
-	private Date syncTime;
+	private Object extendInfo;
+	/** 创建时间 */
+	private Date createTime;
+	/** 用户人脸照片 */
+	private String faceImages;
 
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
@@ -74,20 +76,30 @@ public class ZhUser extends BaseEntity
 		this.idCard = idCard;
 	}
 
-	public String getExtendInfo() {
+	public Object getExtendInfo() {
 		return extendInfo;
 	}
 
-	public void setExtendInfo(String extendInfo) {
+	public void setExtendInfo(Object extendInfo) {
 		this.extendInfo = extendInfo;
 	}
 
-	public Date getSyncTime() {
-		return syncTime;
+	@Override
+	public Date getCreateTime() {
+		return createTime;
 	}
 
-	public void setSyncTime(Date syncTime) {
-		this.syncTime = syncTime;
+	@Override
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getFaceImages() {
+		return faceImages;
+	}
+
+	public void setFaceImages(String faceImages) {
+		this.faceImages = faceImages;
 	}
 
 	@Override
@@ -98,8 +110,9 @@ public class ZhUser extends BaseEntity
 				", name='" + name + '\'' +
 				", icCard='" + icCard + '\'' +
 				", idCard='" + idCard + '\'' +
-				", extendInfo='" + extendInfo + '\'' +
-				", syncTime=" + syncTime +
+				", extendInfo=" + extendInfo +
+				", createTime=" + createTime +
+				", faceImages=" + faceImages +
 				'}';
 	}
 }
