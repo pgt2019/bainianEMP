@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.console.mapper.ZhDeviceuserMapper">
+    
+    <resultMap type="ZhDeviceuser" id="ZhDeviceuserResult">
+        <result property="id"    column="id"    />
+        <result property="personNumber"    column="personNumber"    />
+        <result property="name"    column="name"    />
+        <result property="icCard"    column="icCard"    />
+        <result property="idCard"    column="idCard"    />
+        <result property="extendInfo"    column="extendInfo"    />
+        <result property="faceImage"    column="faceImage"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+	
+	<sql id="selectZhDeviceuserVo">
+        select id, personNumber, name, icCard, idCard, extendInfo, faceImage, create_by, create_time from zh_deviceuser
+    </sql>
+	
+    <select id="selectZhDeviceuserList" parameterType="ZhDeviceuser" resultMap="ZhDeviceuserResult">
+        <include refid="selectZhDeviceuserVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="personNumber != null  and personNumber != '' "> and personNumber = #{personNumber}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="icCard != null  and icCard != '' "> and icCard = #{icCard}</if>
+             <if test="idCard != null  and idCard != '' "> and idCard = #{idCard}</if>
+             <if test="extendInfo != null "> and extendInfo = #{extendInfo}</if>
+             <if test="faceImage != null  and faceImage != '' "> and faceImage = #{faceImage}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+         </where>
+    </select>
+    
+    <select id="selectZhDeviceuserById" parameterType="Integer" resultMap="ZhDeviceuserResult">
+        <include refid="selectZhDeviceuserVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertZhDeviceuser" parameterType="ZhDeviceuser" useGeneratedKeys="true" keyProperty="id">
+        insert into zh_deviceuser
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="personNumber != null  and personNumber != ''  ">personNumber,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="icCard != null  and icCard != ''  ">icCard,</if>
+			<if test="idCard != null  and idCard != ''  ">idCard,</if>
+			<if test="extendInfo != null  ">extendInfo,</if>
+			<if test="faceImage != null  and faceImage != ''  ">faceImage,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="personNumber != null  and personNumber != ''  ">#{personNumber},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="icCard != null  and icCard != ''  ">#{icCard},</if>
+			<if test="idCard != null  and idCard != ''  ">#{idCard},</if>
+			<if test="extendInfo != null  ">#{extendInfo},</if>
+			<if test="faceImage != null  and faceImage != ''  ">#{faceImage},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateZhDeviceuser" parameterType="ZhDeviceuser">
+        update zh_deviceuser
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="personNumber != null  and personNumber != ''  ">personNumber = #{personNumber},</if>
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="icCard != null  and icCard != ''  ">icCard = #{icCard},</if>
+            <if test="idCard != null  and idCard != ''  ">idCard = #{idCard},</if>
+            <if test="extendInfo != null  ">extendInfo = #{extendInfo},</if>
+            <if test="faceImage != null  and faceImage != ''  ">faceImage = #{faceImage},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteZhDeviceuserById" parameterType="Integer">
+        delete from zh_deviceuser where id = #{id}
+    </delete>
+	
+    <delete id="deleteZhDeviceuserByIds" parameterType="String">
+        delete from zh_deviceuser where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

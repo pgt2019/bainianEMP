@@ -20,7 +20,12 @@
 <script th:src="@{/ruoyi/js/ry-ui.js?v=3.3.0}"></script>
 <script th:src="@{/ajax/libs/fullscreen/jquery.fullscreen.js}"></script>
 <script th:src="@{/ajax/libs/blockUI/jquery.blockUI.js}"></script>
-
+<style>
+    .uploadMes{
+        font-size: 10px;
+        color: red;
+    }
+</style>
 <body class="gray-bg">
 
 <div class="col-xs-9" style="padding-left: 0px">
@@ -41,6 +46,22 @@
                                 <div class="col-sm-10">
                                     <input type="text" autocomplete="off" class="form-control" name="title" th:field="*{title}" placeholder="请输入用户名称">
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                <a data-toggle="modal" data-target="#logoUpload" >
+                                    <label class="col-sm-2 control-label">logo</label>
+                                    <div class="col-sm-10">
+                                        <img name="logo" th:src="*{logo}">
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="form-group">
+                                <a data-toggle="modal" data-target="#startFigureUpload" >
+                                    <label class="col-sm-2 control-label">起始页</label>
+                                    <div class="col-sm-10">
+                                        <img name="startFigure" th:src="*{startFigure}" style="width: 100px;height: auto;" >
+                                    </div>
+                                </a>
                             </div>
                             <!--<div class="form-group">-->
                                 <!--<label class="col-sm-2 control-label">logo</label>-->
@@ -113,10 +134,51 @@
                             </div>
                         </form>
                     </div>
+
+                    <div class="modal fade" id="logoUpload" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 class="modal-title" id="logoUploadLabel">logo上传</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <span class="uploadMes">上传尺寸要求：高50px * 宽150px以内，大小50kb以内，格式png</span>
+                                    <input type="file" id="logoUploadI" accept="image/png">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                    <button type="button" class="btn btn-primary" onclick="checkImage('logo')">提交更改</button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                    </div>
+
+                    <div class="modal fade" id="startFigureUpload" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 class="modal-title" id="startFigureUploadLabel">起始页上传</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <span class="uploadMes">上传尺寸要求：高1066px * 宽600px，大小50kb以内，格式png，jpg</span>
+                                    <input type="file" id="startFigureUploadI" accept="image/png,image/jpeg">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                    <button type="button" class="btn btn-primary" onclick="checkImage('startFigure')">提交更改</button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                    </div>
+
 <script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; </script>
 <script th:inline="javascript">
     var prefix = ctx + "console/zhEquipment";
     var deviceNumber =  [[${deviceNumber}]];
+
+
     function submitDeviceOption() {
         var title = $("#title").val();
         var identificationType = $("#identificationType").val();
@@ -155,6 +217,55 @@
                 alert("修改失败 请重试");
             }
         })
+
+
+    }
+
+    function checkImage(uploadType){
+        var fp  = null;
+        var fpUploadUrl = null;
+        if(uploadType == 'startFigure'){
+           fp = $("#startFigureUploadI");
+           fpUploadUrl = prefix + "/deviceOption/startFigureUpload";
+        }
+        if(uploadType == 'logo'){
+            fp = $("#logoUploadI");
+            fpUploadUrl = prefix + "/deviceOption/logoUpload"
+        }
+        var lg = fp[0].files.length;
+        var items = fp[0].files;
+        if(lg > 0){
+            for(var i = 0; i < lg; i++){
+                var fileName = items[i].name;
+                var fileSize = items[i].size;
+                var fileType = items[i].type;
+                if(fileSize > 51200){
+                    alert("请上传小于50kb的图片");
+                    fp.val("");
+                    fp = null;
+                }
+                if(fileType != 'image/png' && fileType != 'image/jpeg' && fileType != 'image/jpg'){
+                    alert("请上传png/jpg格式图片");
+                    fp.val("");
+                    fp = null;
+                }
+                if(fp != null){
+                    var formdata = new FormData();
+                    formdata.append("uploadImg", fp[0].files[0]);
+                    formdata.append("deviceNumber",deviceNumber);
+                    $.ajax({
+                        url: fpUploadUrl,
+                        data: formdata,
+                        type: "post",
+                        processData: false,
+                        contentType: false,
+                        success: function(result) {
+                            alert(result.msg);
+                        }
+                    })
+                }
+            }
+        }
     }
 </script>
 </body>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.console.mapper.ZhRecordrollbackMapper">
+    
+    <resultMap type="ZhRecordrollback" id="ZhRecordrollbackResult">
+        <result property="id"    column="id"    />
+        <result property="deviceNumber"    column="deviceNumber"    />
+        <result property="recognizeTime"    column="recognizeTime"    />
+        <result property="name"    column="name"    />
+        <result property="personNumber"    column="personNumber"    />
+        <result property="similarity"    column="similarity"    />
+        <result property="faceImage"    column="faceImage"    />
+        <result property="icCard"    column="icCard"    />
+        <result property="idCard"    column="idCard"    />
+        <result property="recognizedType"    column="recognizedType"    />
+        <result property="extendInfo"    column="extendInfo"    />
+    </resultMap>
+	
+	<sql id="selectZhRecordrollbackVo">
+        select id, deviceNumber, recognizeTime, name, personNumber, similarity, faceImage, icCard, idCard, recognizedType, extendInfo from zh_recordrollback
+    </sql>
+	
+    <select id="selectZhRecordrollbackList" parameterType="ZhRecordrollback" resultMap="ZhRecordrollbackResult">
+        <include refid="selectZhRecordrollbackVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="deviceNumber != null  and deviceNumber != '' "> and deviceNumber = #{deviceNumber}</if>
+             <if test="recognizeTime != null "> and recognizeTime = #{recognizeTime}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="personNumber != null  and personNumber != '' "> and personNumber = #{personNumber}</if>
+             <if test="similarity != null  and similarity != '' "> and similarity = #{similarity}</if>
+             <if test="faceImage != null "> and faceImage = #{faceImage}</if>
+             <if test="icCard != null  and icCard != '' "> and icCard = #{icCard}</if>
+             <if test="idCard != null  and idCard != '' "> and idCard = #{idCard}</if>
+             <if test="recognizedType != null  and recognizedType != '' "> and recognizedType = #{recognizedType}</if>
+             <if test="extendInfo != null "> and extendInfo = #{extendInfo}</if>
+         </where>
+        order by recognizeTime desc
+    </select>
+    
+    <select id="selectZhRecordrollbackById" parameterType="Integer" resultMap="ZhRecordrollbackResult">
+        <include refid="selectZhRecordrollbackVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertZhRecordrollback" parameterType="ZhRecordrollback" useGeneratedKeys="true" keyProperty="id">
+        insert into zh_recordrollback
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="deviceNumber != null  and deviceNumber != ''  ">deviceNumber,</if>
+			<if test="recognizeTime != null  ">recognizeTime,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="personNumber != null  and personNumber != ''  ">personNumber,</if>
+			<if test="similarity != null  and similarity != ''  ">similarity,</if>
+			<if test="faceImage != null  ">faceImage,</if>
+			<if test="icCard != null  and icCard != ''  ">icCard,</if>
+			<if test="idCard != null  and idCard != ''  ">idCard,</if>
+			<if test="recognizedType != null  and recognizedType != ''  ">recognizedType,</if>
+			<if test="extendInfo != null  ">extendInfo,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="deviceNumber != null  and deviceNumber != ''  ">#{deviceNumber},</if>
+			<if test="recognizeTime != null  ">#{recognizeTime},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="personNumber != null  and personNumber != ''  ">#{personNumber},</if>
+			<if test="similarity != null  and similarity != ''  ">#{similarity},</if>
+			<if test="faceImage != null  ">#{faceImage},</if>
+			<if test="icCard != null  and icCard != ''  ">#{icCard},</if>
+			<if test="idCard != null  and idCard != ''  ">#{idCard},</if>
+			<if test="recognizedType != null  and recognizedType != ''  ">#{recognizedType},</if>
+			<if test="extendInfo != null  ">#{extendInfo},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateZhRecordrollback" parameterType="ZhRecordrollback">
+        update zh_recordrollback
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deviceNumber != null  and deviceNumber != ''  ">deviceNumber = #{deviceNumber},</if>
+            <if test="recognizeTime != null  ">recognizeTime = #{recognizeTime},</if>
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="personNumber != null  and personNumber != ''  ">personNumber = #{personNumber},</if>
+            <if test="similarity != null  and similarity != ''  ">similarity = #{similarity},</if>
+            <if test="faceImage != null  ">faceImage = #{faceImage},</if>
+            <if test="icCard != null  and icCard != ''  ">icCard = #{icCard},</if>
+            <if test="idCard != null  and idCard != ''  ">idCard = #{idCard},</if>
+            <if test="recognizedType != null  and recognizedType != ''  ">recognizedType = #{recognizedType},</if>
+            <if test="extendInfo != null  ">extendInfo = #{extendInfo},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteZhRecordrollbackById" parameterType="Integer">
+        delete from zh_recordrollback where id = #{id}
+    </delete>
+	
+    <delete id="deleteZhRecordrollbackByIds" parameterType="String">
+        delete from zh_recordrollback where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

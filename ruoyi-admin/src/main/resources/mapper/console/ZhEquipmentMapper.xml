@@ -10,10 +10,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="regkey"    column="regkey"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
+        <result property="ip"    column="ip"    />
     </resultMap>
 	
 	<sql id="selectZhEquipmentVo">
-        select id, meid, regkey, create_by, create_time from zh_equipment
+        select id, meid, regkey, create_by, create_time, ip from zh_equipment
     </sql>
 	
     <select id="selectZhEquipmentList" parameterType="ZhEquipment" resultMap="ZhEquipmentResult">
@@ -24,6 +25,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              <if test="regkey != null  and regkey != '' "> and regkey = #{regkey}</if>
              <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
              <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="ip != null "> and ip = #{ip}</if>
          </where>
     </select>
     
@@ -40,6 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="regkey != null  and regkey != ''  ">regkey,</if>
 			<if test="createBy != null  and createBy != ''  ">create_by,</if>
 			<if test="createTime != null  ">create_time,</if>
+			<if test="ip != null  ">ip,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null  ">#{id},</if>
@@ -47,6 +50,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="regkey != null  and regkey != ''  ">#{regkey},</if>
 			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
 			<if test="createTime != null  ">#{createTime},</if>
+			<if test="ip != null  ">#{ip},</if>
          </trim>
     </insert>
 	 
@@ -57,6 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="regkey != null  and regkey != ''  ">regkey = #{regkey},</if>
             <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
             <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="ip != null  ">ip = #{ip},</if>
         </trim>
         where id = #{id}
     </update>

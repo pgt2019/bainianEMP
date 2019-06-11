@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-	<th:block th:include="include :: header('新增振汇开放平台 设备接口绑定')" />
+	<th:block th:include="include :: header('设备绑定')" />
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -24,12 +24,12 @@
 					<input id="createBy" name="createBy" class="form-control" type="text">
 				</div>
 			</div>
-			<!--<div class="form-group">	-->
-				<!--<label class="col-sm-3 control-label">创建时间：</label>-->
-				<!--<div class="col-sm-8">-->
-					<!--<input id="createTime" name="createTime" class="form-control" type="datetime-local">-->
-				<!--</div>-->
-			<!--</div>-->
+			<div class="form-group">
+				<label class="col-sm-3 control-label">ip地址：</label>
+				<div class="col-sm-8">
+					<input id="ip" name="ip" class="form-control" type="text">
+				</div>
+			</div>
 		</form>
 	</div>
     <div th:include="include::footer"></div>

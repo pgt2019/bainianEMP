@@ -1,9 +1,6 @@
 package com.ruoyi.console.utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -150,10 +147,53 @@ public class HttpRequest {
         return result;
     }
 
+    /**
+     * 检查设备连接状态  ping
+     * @param ip
+     * @return
+     */
+    public static boolean isConnect(String ip){
+        boolean connect = false;
+        Runtime runtime = Runtime.getRuntime();
+        Process process;
+        try {
+            process = runtime.exec("ping " + ip);
+            InputStream is = process.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String line = null;
+            StringBuffer sb = new StringBuffer();
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            System.out.println("返回值为:"+sb);
+            is.close();
+            isr.close();
+            br.close();
+
+            if (null != sb && !sb.toString().equals("")) {
+                String logString = "";
+                if (sb.toString().indexOf("TTL") > 0) {
+                    // 网络畅通
+                    connect = true;
+                } else {
+                    // 网络不畅通
+                    connect = false;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return connect;
+    }
+
     public static void main(String[] args) {
-        //发送 POST 请求
+//        //发送 POST 请求
         String sr=HttpRequest.sendPost("http://192.168.1.199:8089/auth", "",null);
         System.out.println(sr);
+
+//        System.out.println(HttpRequest.isConnect("192.168.1.198"));
+
     }
 
 }

@@ -1,19 +1,23 @@
 package com.ruoyi.console.controller;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.console.domain.*;
+import com.ruoyi.console.service.IZhRecordrollbackService;
 import com.ruoyi.console.utils.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.support.BindingAwareModelMap;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.enums.BusinessType;
@@ -29,7 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
- * 振汇开放平台 设备接口绑定 人员管理（增删改 人脸（增删））  设备管理
+ * 设备ZH 人员管理（增删改 人脸（增删））  设备管理
  * 
  * @author bainian
  * @date 2019-05-10
@@ -42,6 +46,8 @@ public class ZhEquipmentController extends BaseController
 	
 	@Autowired
 	private IZhEquipmentService zhEquipmentService;
+    @Autowired
+    private IZhRecordrollbackService zhRecordrollbackService;
 	
 	@RequiresPermissions("console:zhEquipment:view")
 	@GetMapping()
@@ -49,6 +55,44 @@ public class ZhEquipmentController extends BaseController
 	{
 	    return prefix + "/zhEquipment";
 	}
+
+
+    /**
+     * 设备识别回调接口
+     */
+    @PostMapping(value = "/callBackRecord")
+    @ResponseBody
+    public void callBackRecord(HttpServletRequest request) throws ParseException {
+        ZhRecordrollback zhRecordrollback = new ZhRecordrollback();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        String deviceNumber=request.getParameter("deviceNumber");        //设备编号
+        String faceImage=request.getParameter("faceImage");              //人脸照片
+        String name=request.getParameter("name");                        //人员名称
+        String recognizeTime = request.getParameter("recognizeTime");    //识别时间
+        if(recognizeTime.length()>10){
+            recognizeTime = recognizeTime.substring(0,10);
+        }
+        String personNumber = request.getParameter("personNumber");      //人员编号
+        String similarity = request.getParameter("similarity");          //相似度
+        String icCard = request.getParameter("icCard");                  //IC卡
+        String idCard = request.getParameter("idCard");                  //id卡
+        String recognizedType = request.getParameter("recognizedType");  //识别类型
+        String extendInfo = request.getParameter("extendInfo");          //扩展字段
+
+        zhRecordrollback.setDeviceNumber(deviceNumber);
+        zhRecordrollback.setFaceImage(faceImage);
+        zhRecordrollback.setName(name);
+        zhRecordrollback.setPersonNumber(personNumber);
+        zhRecordrollback.setSimilarity(similarity);
+        zhRecordrollback.setIcCard(icCard);
+        zhRecordrollback.setIdCard(idCard);
+        zhRecordrollback.setRecognizedType(recognizedType);
+        zhRecordrollback.setExtendInfo(extendInfo);
+        zhRecordrollback.setRecognizeTime(format.parse(TimestampToDateStr.timeStamp2Date(recognizeTime,"yyyy-MM-dd HH:mm:ss")));
+        zhRecordrollbackService.insertZhRecordrollback(zhRecordrollback);
+
+    }
 
 	/**
 	 * 控制台
@@ -61,6 +105,20 @@ public class ZhEquipmentController extends BaseController
 		return prefix + "/myEquipment";
 	}
 
+    /**
+     * 检查在线状态
+     * @return
+     */
+	@GetMapping("/onlineStatus")
+    @ResponseBody
+    public AjaxResult onlineStatus(HttpServletRequest request){
+	    String ip = request.getParameter("deviceIp");
+	    boolean isOnline = HttpRequest.isConnect(ip);
+	    if(isOnline){
+            return AjaxResult.success("当前设备在线");
+        }
+	    return AjaxResult.error("设备不在线");
+    }
 
 	/**
 	 * 设备管理器（设备控制  人员管理  在线状态 。。 ）
@@ -70,19 +128,23 @@ public class ZhEquipmentController extends BaseController
 	public String myEqManage(@PathVariable("id") String id,HttpServletRequest request) throws ClassCastException, UnknownHostException {
         HttpSession session = request.getSession();
 	    String ids = id.substring(0,id.indexOf(","));                                   //data-id 所选绑定的设备id获取
-        String meid = id.substring(id.indexOf(",")+1,id.lastIndexOf(","));         //设备号
-        String activationCode = id.substring(id.lastIndexOf(",")+1);                //激活码
+        String meid = id.substring(id.indexOf(",")+1,id.indexOf(",",id.indexOf(",")+1));         //设备号
+        String activationCode = id.substring(id.indexOf(",",id.indexOf(",")+1)+1,id.lastIndexOf(","));         //设备号
+        String deviceIp = id.substring(id.lastIndexOf(",")+1);                //设备ip
+        session.setAttribute("dataId",ids);
+        session.setAttribute("meid",meid);
+        session.setAttribute("deviceIp",deviceIp);
+        deviceIp = "http://"+deviceIp+":8089";           //设备ip
 	    String ip = InetAddress.getLocalHost().getHostAddress();                        //获得本地ip
-        long timestamp = System.currentTimeMillis();                                    //时间戳
+        long timestamp = new Date().getTime()/1000;                                    //时间戳
         String sign = GetMD5.MD5(activationCode + meid + timestamp);          //鉴权md5
-        String result = ZhEquipmentUtil.getToken(ip,meid,activationCode,timestamp,sign);//鉴权请求
+        String result = ZhEquipmentUtil.getToken(ip,meid,activationCode,timestamp,sign,deviceIp);//鉴权请求
         JSONObject jsonObject = JSONObject.parseObject(result);
         Object resCode = jsonObject.get("code").toString();
         if(resCode.equals("0")){
             session.setAttribute("token",jsonObject.get("data"));                   //token存入session
         }
-		session.setAttribute("dataId",ids);
-        session.setAttribute("meid",meid);
+
 	    return prefix + "/myEquipment";
 	}
 
@@ -107,6 +169,8 @@ public class ZhEquipmentController extends BaseController
         SimpleDateFormat format =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //设置格式
         HttpSession session = request.getSession();
         Object token = session.getAttribute("token");                 //获取token
+        String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+
         String startTime = null;            //时间条件查询
         String endTime = null;
         String queryLength = null;          //查询返回条数 默认为10条
@@ -129,7 +193,7 @@ public class ZhEquipmentController extends BaseController
             personNumber = zhRecord.getRecognizePersonNumber();
         }
 
-        String result = ZhEquipmentUtil.getRecord(personNumber,startTime,endTime,null,queryLength,token.toString());
+        String result = ZhEquipmentUtil.getRecord(personNumber,startTime,endTime,null,queryLength,token.toString(),deviceIp);
         JSONObject json = JSONObject.parseObject(result);
         String data = json.getString("data");
         JSONArray jsonArray = JSONArray.parseArray(data);            //将Array解析JSONArray
@@ -165,17 +229,29 @@ public class ZhEquipmentController extends BaseController
         HttpSession session = request.getSession();
         Object token = session.getAttribute("token");                 //获取token
         Object meid = session.getAttribute("meid");                   //当前操作的设备
-        String result = ZhEquipmentUtil.getDeviceOptions(meid.toString(),token.toString());
+        String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+        String result = ZhEquipmentUtil.getDeviceOptions(meid.toString(),token.toString(),deviceIp);
         JSONObject jsonObject = JSONObject.parseObject(result);
         Object resCode = jsonObject.get("code").toString();
         if(resCode.equals("0")){
             ZhDeviceOption data =jsonObject.getObject("data",ZhDeviceOption.class);
+            String startFigure = deviceIp+data.getStartFigure();
+            startFigure = ImgStrToBase64.getImgStrToBase64(startFigure,token.toString());
+            data.setStartFigure(startFigure);
+
+            String logo = deviceIp+data.getLogo();
+            logo = ImgStrToBase64.getImgStrToBase64(logo,token.toString());
+            data.setLogo(logo);
+
             mmap.put("ZhDeviceOption",data);
             mmap.put("deviceNumber",meid);
         }
 
         return prefix + "/deviceOption_show";
     }
+
+    File logoUploadFile = null;
+    File startLogoUploadFile = null;
 
     /**
      * 配置设备信息  保存
@@ -187,7 +263,8 @@ public class ZhEquipmentController extends BaseController
     {
         HttpSession session = request.getSession();
         Object token = session.getAttribute("token");                 //获取token
-        System.out.println(deviceOption);
+        String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+
         String deviceNumber = deviceOption.get("deviceNumber").toString();
         String title = deviceOption.get("title").toString();
         String identificationType = deviceOption.get("identificationType").toString();
@@ -199,13 +276,82 @@ public class ZhEquipmentController extends BaseController
         String verifyIdCard = deviceOption.get("verifyIdCard").toString();
         String voiceHint = deviceOption.get("voiceHint").toString();
 
-        String result = ZhEquipmentUtil.updateDeviceOption(token.toString(),deviceNumber,title,null,null,threshold,identificationType,verifyIdCard,voiceHint,isOutDoor,isOpenLiving,null,null,callBackAddress,saveLocalRecordTime,null);
+        String result = ZhEquipmentUtil.updateDeviceOption(token.toString(),deviceNumber,title,logoUploadFile,startLogoUploadFile,threshold,identificationType,verifyIdCard,voiceHint,isOutDoor,isOpenLiving,null,null,callBackAddress,saveLocalRecordTime,null,deviceIp);
         JSONObject jsonObject = JSONObject.parseObject(result);
         Object resCode = jsonObject.get("code").toString();
         if(resCode.equals("0")){
             return AjaxResult.success(jsonObject.get("message").toString());
         }
         return AjaxResult.error(jsonObject.get("message").toString());
+    }
+
+
+    /**
+     *  设备logo上传
+     */
+    @RequiresPermissions("console:zhEquipment:list")
+    @PostMapping("/deviceOption/logoUpload")
+    @ResponseBody
+    public AjaxResult logoUpload(MultipartFile uploadImg,String deviceNumber,HttpServletRequest request)
+    {
+        if (!uploadImg.isEmpty()) {
+            try {
+                // 获取文件名
+                String fileName = uploadImg.getOriginalFilename();
+                // 获取文件后缀
+                String prefix=fileName.substring(fileName.lastIndexOf("."));
+                // 用uuid作为文件名，防止生成的临时文件重复
+                logoUploadFile = File.createTempFile(fileName, prefix);
+                // MultipartFile to File
+                uploadImg.transferTo(logoUploadFile);
+                //程序结束时，删除临时文件
+                return AjaxResult.success("提交成功");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return AjaxResult.error("网络错误 照片上传失败");
+    }
+
+    /**
+     *  设备startlogo上传
+     */
+    @RequiresPermissions("console:zhEquipment:list")
+    @PostMapping("/deviceOption/startFigureUpload")
+    @ResponseBody
+    public AjaxResult startFigureUpload(MultipartFile uploadImg,String deviceNumber,HttpServletRequest request)
+    {
+        if (!uploadImg.isEmpty()) {
+            try {
+                // 获取文件名
+                String fileName = uploadImg.getOriginalFilename();
+                // 获取文件后缀
+                String prefix=fileName.substring(fileName.lastIndexOf("."));
+                // 用uuid作为文件名，防止生成的临时文件重复
+                startLogoUploadFile = File.createTempFile(fileName, prefix);
+                // MultipartFile to File
+                uploadImg.transferTo(startLogoUploadFile);
+                //程序结束时，删除临时文件
+                return AjaxResult.success("提交成功");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return AjaxResult.error("网络错误 照片上传失败");
+    }
+
+    /**
+     * 临时文件删除
+     * @param files
+     */
+    private void deleteFile(File... files) {
+        for (File file : files) {
+            if (file.exists()) {
+                file.delete();
+            }
+        }
     }
 
 
@@ -229,7 +375,9 @@ public class ZhEquipmentController extends BaseController
     {
         HttpSession session = request.getSession();
         Object token = session.getAttribute("token");                 //获取token
-        String result = ZhEquipmentUtil.addUser(zhUser,token.toString());
+        String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+
+        String result = ZhEquipmentUtil.addUser(zhUser,token.toString(),deviceIp);
         JSONObject jsonObject = JSONObject.parseObject(result);
         Object resCode = jsonObject.get("code").toString();
         if(resCode.equals("0")){
@@ -287,14 +435,16 @@ public class ZhEquipmentController extends BaseController
                 HttpSession session = request.getSession();
                 Object token = session.getAttribute("token");                           //获取token
                 Object personNumber = session.getAttribute("personNumber");
+                String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+
                 BASE64Encoder encoder = new BASE64Encoder();
                 String data = encoder.encode(faceImage.getBytes());                        // 通过base64来转化图片
                 data = URLEncoder.encode(data,"utf-8");
-                String checkresult = ZhEquipmentUtil.checkFace(data,token.toString());   //检查人脸照片是否符合
+                String checkresult = ZhEquipmentUtil.checkFace(data,token.toString(),deviceIp);   //检查人脸照片是否符合
                 JSONObject checkResultJson = JSONObject.parseObject(checkresult);
                 Object resCode = checkResultJson.get("code").toString();
                 if(resCode.equals("0")){
-                    String addResult = ZhEquipmentUtil.addBase64Image(personNumber.toString(),data,token.toString());   //添加人脸照片操作
+                    String addResult = ZhEquipmentUtil.addBase64Image(personNumber.toString(),data,token.toString(),deviceIp);   //添加人脸照片操作
                     JSONObject addResultJson = JSONObject.parseObject(addResult);
                     Object addResCode = addResultJson.get("code").toString();
                     if(addResCode.equals("0")){
@@ -322,7 +472,9 @@ public class ZhEquipmentController extends BaseController
         HttpSession session = request.getSession();
         Object token = session.getAttribute("token");                           //获取token
         Object personNumber = session.getAttribute("personNumber");
-        String result = ZhEquipmentUtil.deleteImage(personNumber.toString(),id,token.toString());   //删除人脸照片操作
+        String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+
+        String result = ZhEquipmentUtil.deleteImage(personNumber.toString(),id,token.toString(),deviceIp);   //删除人脸照片操作
         JSONObject resultJson = JSONObject.parseObject(result);
         Object resCode = resultJson.get("code").toString();
         if(resCode.equals("0")){
@@ -342,7 +494,9 @@ public class ZhEquipmentController extends BaseController
         HttpSession session = request.getSession();
         Object token = session.getAttribute("token");                                    //获取token
 		Object personNumber = session.getAttribute("personNumber");
-		JSONObject json = JSONObject.parseObject(ZhEquipmentUtil.getFaceImage(personNumber.toString(),token.toString()));
+        String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+
+		JSONObject json = JSONObject.parseObject(ZhEquipmentUtil.getFaceImage(personNumber.toString(),token.toString(),deviceIp));
 
 		String data = json.getString("data");
 		JSONArray jsonArray = JSONArray.parseArray(data);            //将Array解析JSONArray
@@ -350,9 +504,9 @@ public class ZhEquipmentController extends BaseController
         if(list.size() !=0 ){
             for(int j=0;j<list.size();j++){
                 ZhUserFaceImages tempMap = list.get(j);
-                String faceImages = "http://192.168.1.199:8089"+tempMap.getUrl();
+                String faceImages = deviceIp+tempMap.getUrl();
                 String ImgBase64 = ImgStrToBase64.getImgStrToBase64(faceImages,token.toString());
-                faceImages = ("<a onclick='imgBigShow(\"img"+tempMap.getId()+"\")'> <img id='img"+tempMap.getId()+"' src='data:image/png;base64,"+ImgBase64+"' style='width:100px;height:100px;'/> </a>");
+                faceImages = ("<a onclick='imgBigShow(\"img"+tempMap.getId()+"\")'> <img id='img"+tempMap.getId()+"' src='"+ImgBase64+"' style='width:100px;height:100px;'/> </a>");
                 list.get(j).setUrl(faceImages);
             }
         }
@@ -378,7 +532,9 @@ public class ZhEquipmentController extends BaseController
     {
         HttpSession session = request.getSession();
         Object token = session.getAttribute("token");                 //获取token
-        String resstr = ZhEquipmentUtil.deleteUser(ids,token.toString());
+        String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+
+        String resstr = ZhEquipmentUtil.deleteUser(ids,token.toString(),deviceIp);
         JSONObject jsonObject = JSONObject.parseObject(resstr);
         Object resCode = jsonObject.get("code").toString();
         if(resCode.equals("0")){
@@ -395,7 +551,9 @@ public class ZhEquipmentController extends BaseController
     {
         HttpSession session = request.getSession();
         Object token = session.getAttribute("token");                       //获取token
-        String res = ZhEquipmentUtil.queryUserList(id,token.toString());        //数据回显
+        String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+
+        String res = ZhEquipmentUtil.queryUserList(id,null,null,token.toString(),deviceIp);        //数据回显
         JSONObject resJson = JSONObject.parseObject(res);                       //String 转 JSONObject
         JSONArray jsonArray = JSONArray.parseArray(resJson.get("data").toString()); //data String  转  JSONArray   用于解析成ZhUser对象
         List<ZhUser> list = jsonArray.toJavaList(ZhUser.class);
@@ -417,7 +575,9 @@ public class ZhEquipmentController extends BaseController
     {
         HttpSession session = request.getSession();
         Object token = session.getAttribute("token");                       //获取token
-        String resstr = ZhEquipmentUtil.updateUser(zhUser,token.toString());
+        String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+
+        String resstr = ZhEquipmentUtil.updateUser(zhUser,token.toString(),deviceIp);
         JSONObject jsonObject = JSONObject.parseObject(resstr);
         Object resCode = jsonObject.get("code").toString();
         if(resCode.equals("0")){
@@ -432,18 +592,11 @@ public class ZhEquipmentController extends BaseController
     @RequiresPermissions("console:zhEquipment:list")
     @PostMapping("/getUser")
     @ResponseBody
-    public TableDataInfo getUser(ZhEquipment zhEquipment, HttpServletRequest request) throws UnknownHostException {
+    public TableDataInfo getUser(ZhUser zhUser, HttpServletRequest request) throws UnknownHostException {
     	HttpSession session = request.getSession();
     	Object token = session.getAttribute("token");                 //获取token
-        Object id = session.getAttribute("dataId");
-        if(id != null){  //session中id为最新的设备id
-            zhEquipment.setId(Integer.parseInt(id.toString()));
-        }
-		if(token == null){      //为null  执行鉴权操作
-			getToken(zhEquipment,request);
-			token = session.getAttribute("token");
-		}
-        String result =HttpRequest.sendGet("http://192.168.1.199:8089/person/queryList",null,token.toString());
+        String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+        String result = ZhEquipmentUtil.queryUserList(zhUser.getPersonNumber(),zhUser.getKeyWord(),null,token.toString(),deviceIp);
         JSONObject json = JSONObject.parseObject(result);
         String data = json.getString("data");
         JSONArray jsonArray = JSONArray.parseArray(data);
@@ -452,9 +605,9 @@ public class ZhEquipmentController extends BaseController
             JSONArray tempJson = JSONArray.parseArray(list.get(i).getFaceImages());
             if(tempJson.size() !=0 ){
                 Map tempMap = (Map) tempJson.get(0);
-                String faceImages = "http://192.168.1.199:8089"+tempMap.get("url");
+                String faceImages = deviceIp+tempMap.get("url");
                 String ImgBase64 = ImgStrToBase64.getImgStrToBase64(faceImages,token.toString());
-                list.get(i).setFaceImages("<a onclick='imgBigShow(\"img"+tempMap.get("id")+"\")'> <img id='img"+tempMap.get("id")+"' src='data:image/png;base64,"+ImgBase64+"' style='width:100px;height:100px;'/> </a>");
+                list.get(i).setFaceImages("<a onclick='imgBigShow(\"img"+tempMap.get("id")+"\")'> <img id='img"+tempMap.get("id")+"' src='"+ImgBase64+"' style='width:100px;height:100px;'/> </a>");
             }else{
                 list.get(i).setFaceImages("");
             }

@@ -6,7 +6,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import java.util.Date;
 
 /**
- * 振汇开放平台api  人员表 zh_user
+ * 人员表 zh_user
  * 
  * @author bainian
  * @date 2019-05-10
@@ -17,7 +17,7 @@ public class ZhUser extends BaseEntity
 	
 	/**  */
 	private Integer id;
-	/** 人员编号(JSON) */
+	/** 人员编号 */
 	private String personNumber;
 	/** 姓名 */
 	private String name;
@@ -26,11 +26,32 @@ public class ZhUser extends BaseEntity
 	/** id卡号 */
 	private String idCard;
 	/** 扩展字段 */
-	private Object extendInfo;
+	private String extendInfo;
 	/** 创建时间 */
 	private Date createTime;
+
+	private String createBy;
 	/** 用户人脸照片 */
 	private String faceImages;
+	private String keyWord;
+
+	@Override
+	public String getCreateBy() {
+		return createBy;
+	}
+
+	@Override
+	public void setCreateBy(String createBy) {
+		this.createBy = createBy;
+	}
+
+	public String getKeyWord() {
+		return keyWord;
+	}
+
+	public void setKeyWord(String keyWord) {
+		this.keyWord = keyWord;
+	}
 
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
@@ -76,11 +97,11 @@ public class ZhUser extends BaseEntity
 		this.idCard = idCard;
 	}
 
-	public Object getExtendInfo() {
+	public String getExtendInfo() {
 		return extendInfo;
 	}
 
-	public void setExtendInfo(Object extendInfo) {
+	public void setExtendInfo(String extendInfo) {
 		this.extendInfo = extendInfo;
 	}
 

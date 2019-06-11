@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+	<th:block th:include="include :: header('设备人员新增')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+	<input type="file" class="" name="faceImage" id="faceImage" accept="image/*"/>
+	<!--<button onclick="checkImage()">照片符合度检测</button>-->
+</div>
+<script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; </script>
+<div th:include="include::footer"></div>
+<script type="text/javascript">
+    var prefix = ctx + "console/zhFaceimage";
+
+    $("#form-zhEquipment-add").validate({
+        rules:{
+            xxxx:{
+                required:true,
+            },
+        },
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        var img = document.getElementById("faceImage");
+        var fileObj = img.files[0];
+        var formdata = new FormData();
+        formdata.append("faceImage", fileObj);
+        $.ajax({
+            url: prefix + "/add",
+            data: formdata,
+            type: "post",
+            processData: false,
+            contentType: false,
+            success: function(result) {
+                alert(result.msg);
+                $.modal.close();
+                parent.$.treeTable.refresh();
+            }
+        })
+    }
+
+</script>
+</body>
+</html>

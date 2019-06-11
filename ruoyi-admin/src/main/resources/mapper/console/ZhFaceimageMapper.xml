@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.console.mapper.ZhFaceimageMapper">
+    
+    <resultMap type="ZhFaceimage" id="ZhFaceimageResult">
+        <result property="id"    column="id"    />
+        <result property="personNumber"    column="personNumber"    />
+        <result property="faceImage"    column="faceImage"    />
+    </resultMap>
+	
+	<sql id="selectZhFaceimageVo">
+        select id, personNumber, faceImage from zh_faceimage
+    </sql>
+	
+    <select id="selectZhFaceimageList" parameterType="ZhFaceimage" resultMap="ZhFaceimageResult">
+        <include refid="selectZhFaceimageVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="personNumber != null  and personNumber != '' "> and personNumber = #{personNumber}</if>
+             <if test="faceImage != null "> and faceImage = #{faceImage}</if>
+         </where>
+    </select>
+    
+    <select id="selectZhFaceimageById" parameterType="Integer" resultMap="ZhFaceimageResult">
+        <include refid="selectZhFaceimageVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertZhFaceimage" parameterType="ZhFaceimage">
+        insert into zh_faceimage
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">id,</if>
+			<if test="personNumber != null  and personNumber != ''  ">personNumber,</if>
+			<if test="faceImage != null  ">faceImage,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">#{id},</if>
+			<if test="personNumber != null  and personNumber != ''  ">#{personNumber},</if>
+			<if test="faceImage != null  ">#{faceImage},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateZhFaceimage" parameterType="ZhFaceimage">
+        update zh_faceimage
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="personNumber != null  and personNumber != ''  ">personNumber = #{personNumber},</if>
+            <if test="faceImage != null  ">faceImage = #{faceImage},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteZhFaceimageById" parameterType="Integer">
+        delete from zh_faceimage where id = #{id}
+    </delete>
+	
+    <delete id="deleteZhFaceimageByIds" parameterType="String">
+        delete from zh_faceimage where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<th:block th:include="include :: header('识别记录列表')" />
+</head>
+<body class="gray-bg">
+    
+     <div class="container-div">
+		<div class="row">
+			<div class="col-sm-12 search-collapse">
+				<form id="formId">
+					<div class="select-list">
+						<ul>
+							<!--<li>-->
+								<!--设备编号：<input type="text" name="deviceNumber"/>-->
+							<!--</li>-->
+
+							<!--<li>-->
+								<!--识别时间：<input type="text" name="recognizeTime"/>-->
+							<!--</li>-->
+
+							<li>
+								识别人员姓名：<input type="text" name="name"/>
+							</li>
+
+							<!--<li>-->
+								<!--识别人员编号：<input type="text" name="personNumber"/>-->
+							<!--</li>-->
+
+							<!--<li>-->
+								<!--相似度：<input type="text" name="similarity"/>-->
+							<!--</li>-->
+
+							<!--<li>-->
+								<!--识别图：<input type="text" name="faceImage"/>-->
+							<!--</li>-->
+
+							<!--<li>-->
+								<!--ic卡：<input type="text" name="icCard"/>-->
+							<!--</li>-->
+
+							<!--<li>-->
+								<!--id卡：<input type="text" name="idCard"/>-->
+							<!--</li>-->
+
+							<!--<li>-->
+								<!--识别类型：<input type="text" name="recognizedType"/>-->
+							<!--</li>-->
+
+							<!--<li>-->
+								<!--扩展字段：<input type="text" name="extendInfo"/>-->
+							<!--</li>-->
+
+							<li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+								<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+			
+	        <div class="btn-group-sm" id="toolbar" role="group">
+				<!--<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="console:zhRecordrollback:add">-->
+					<!--<i class="fa fa-plus"></i> 添加-->
+				<!--</a>-->
+				<!--<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="console:zhRecordrollback:edit">-->
+					<!--<i class="fa fa-edit"></i> 修改-->
+				<!--</a>-->
+				<!--<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="console:zhRecordrollback:remove">-->
+					<!--<i class="fa fa-remove"></i> 删除-->
+				<!--</a>-->
+				<a class="btn btn-warning" th:style="${hiddenStatue == '1' ? 'display:none' : ''}" th:href="@{/console/zhEquipment/toRecord}" >
+						<i class="fa fa-list"></i> 查看本地记录
+				 </a>
+			</div>
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('console:zhRecordrollback:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('console:zhRecordrollback:remove')}]];
+        var prefix = ctx + "console/zhRecordrollback";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+				exportUrl: prefix + "/export",
+                modalName: "识别记录",
+		        showExport: false,
+                columns: [{
+		            checkbox: true
+		        },
+				{
+					field : 'id', 
+					title : '',
+					visible: false
+				},
+				{
+					field : 'deviceNumber', 
+					title : '设备编号',
+					sortable: true
+				},
+				{
+					field : 'recognizeTime', 
+					title : '识别时间',
+					sortable: true
+				},
+				{
+					field : 'name', 
+					title : '识别人员姓名',
+					sortable: true
+				},
+				{
+					field : 'personNumber', 
+					title : '识别人员编号',
+					sortable: true
+				},
+				{
+					field : 'faceImage', 
+					title : '识别图',
+					sortable: true,
+                    formatter : function (index,row){
+					    var image = '<a target="_blank"><img style="width: 100px;height: 100px;" src="data:image/png;base64,'+row.faceImage+'"</a>';
+					    return image;
+					}
+				},
+				{
+					field : 'icCard', 
+					title : 'ic卡',
+					sortable: true
+				},
+				{
+					field : 'idCard', 
+					title : 'id卡',
+					sortable: true
+				},
+				{
+					field : 'recognizedType', 
+					title : '识别类型',
+					sortable: true,
+                    formatter : function (index,row){
+					    if(row.recognizedType == '0'){
+                            return "人脸";
+						}if(row.recognizedType == '1'){
+                            return "人脸识别";
+						}if(row.recognizedType == '2'){
+                            return "人脸&ic卡";
+						}if(row.recognizedType == '3'){
+                            return "id卡";
+						}if(row.recognizedType == '4'){
+                            return "人脸&id卡";
+						}
+                    }
+				}]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

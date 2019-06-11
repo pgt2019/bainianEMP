@@ -23,11 +23,11 @@
 <body class="gray-bg">
 
 <div class="container-div">
-    <div>
-        <span>状态:</span>
-        <i><img th:src="@{/ruoyi/png/redPoint.png}" style="width: 25px;height: 25px">&nbsp;离线</i>
-        <i><img th:src="@{/ruoyi/png/greenPoint.png}" style="width: 25px;height: 25px">&nbsp;在线</i>
-    </div>
+    <!--<div>-->
+        <!--<span>状态:</span>-->
+        <!--<i><img th:src="@{/ruoyi/png/redPoint.png}" style="width: 25px;height: 25px">&nbsp;离线</i>-->
+        <!--<i><img th:src="@{/ruoyi/png/greenPoint.png}" style="width: 25px;height: 25px">&nbsp;在线</i>-->
+    <!--</div>-->
     <div class="menuBtn">
         <a th:href="@{/console/zhEquipment/toUserView}">
             <img th:src="@{/ruoyi/png/userManage.png}" class="menuBtn-png"><br/>
@@ -41,17 +41,17 @@
         </a>
     </div>
     <div class="menuBtn menuBtn-margin">
-        <a th:href="@{/console/zhEquipment/toRecord}">
+        <a th:href="@{/console/zhRecordrollback}">
             <img th:src="@{/ruoyi/png/record.png}" class="menuBtn-png"><br/>
             <span>设备识别记录</span>
         </a>
     </div>
-    <div class="menuBtn menuBtn-margin">
-        <a>
-            <img th:src="@{/ruoyi/png/lock.png}" class="menuBtn-png"><br/>
-            <span>手动开门</span>
-        </a>
-    </div>
+    <!--<div class="menuBtn menuBtn-margin">-->
+        <!--<a>-->
+            <!--<img th:src="@{/ruoyi/png/lock.png}" class="menuBtn-png"><br/>-->
+            <!--<span>手动开门</span>-->
+        <!--</a>-->
+    <!--</div>-->
 </div>
 <div th:include="include :: footer"></div>
 <script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; </script>

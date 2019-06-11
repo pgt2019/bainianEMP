@@ -7,7 +7,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import java.util.Date;
 
 /**
- * 振汇开放平台 设备接口绑定表 zh_equipment
+ *  zh_equipment
  * 
  * @author bainian
  * @date 2019-05-10
@@ -26,6 +26,16 @@ public class ZhEquipment extends BaseEntity
 	private String createBy;
 
 	private Date createTime;
+
+	private String ip;
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 
 	@Override
 	public Date getCreateTime() {

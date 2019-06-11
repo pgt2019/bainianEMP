@@ -25,7 +25,7 @@
         		    escape: false,
         		    showFooter: false,
         		    search: false,
-                    showSearch: true,
+                    showSearch: false,
                     showPageGo: false,
                     showRefresh: true,
                     showColumns: true,
@@ -50,7 +50,7 @@
                     cache: false,                                       // 是否使用缓存
                     height: options.height,                             // 表格的高度
                     striped: options.striped,                           // 是否显示行间隔色
-                    sortable: true,                                     // 是否启用排序
+                    sortable: false,                                     // 是否启用排序
                     sortStable: true,                                   // 设置为 true 将获得稳定的排序
                     sortName: options.sortName,                         // 排序列名称
                     sortOrder: options.sortOrder,                       // 排序方式  asc 或者 desc
@@ -817,7 +817,6 @@
                 }
                 $.modal.confirm("确认要删除选中的" + rows.length + "条数据吗?", function() {
                     var url = $.table._option.removeUrl;
-                    alert(url)
                     var data = { "ids": rows.join() };
                     $.operate.submit(url, "post", "json", data);
                 });
@@ -838,7 +837,17 @@
             },
 			//设备管理
             manage: function(id) {
-                $.modal.openBN("设备管理",$.operate.manageUrl(id),'max','max');
+                $.modal.loading("跳转中...");
+                $.ajax({
+                    url:prefix+"/onlineStatus?deviceIp="+id.substr(id.lastIndexOf(',')+1),
+                    success:function (res) {
+                        if (res.code == web_status.SUCCESS) {
+                            $.modal.openBN("设备管理",$.operate.manageUrl(id),'max','max');
+                        }else {
+                            $.modal.alertError(res.msg);
+                        }
+                    }
+                })
             },
             manageUrl: function(id) {
                 var url = $.common.isEmpty(id) ? $.table._option.manageUrl : $.table._option.manageUrl.replace("{id}", id);

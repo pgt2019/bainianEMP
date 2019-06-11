@@ -25,34 +25,26 @@
 
 <div class="container-div">
     <div class="row">
-        <!--<div class="col-sm-12 search-collapse">-->
-            <!--<form id="formId">-->
-                <!--&lt;!&ndash;<div class="select-list">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<ul>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<li>&ndash;&gt;-->
-                            <!--&lt;!&ndash;人员编号：<input type="text" name="personNumber"/>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</li>&ndash;&gt;-->
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            人员姓名：<input type="text" name="keyWord"/>
+                        </li>
 
-                        <!--&lt;!&ndash;<li>&ndash;&gt;-->
-                            <!--&lt;!&ndash;姓名：<input type="text" name="name"/>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</li>&ndash;&gt;-->
+                        <!--<li>-->
+                            <!--姓名：<input type="text" name="name"/>-->
+                        <!--</li>-->
 
-                        <!--&lt;!&ndash;<li>&ndash;&gt;-->
-                            <!--&lt;!&ndash;ic卡号：<input type="text" name="idCard"/>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</li>&ndash;&gt;-->
-
-                        <!--&lt;!&ndash;<li>&ndash;&gt;-->
-                            <!--&lt;!&ndash;身份证编号：<input type="text" name="idCard"/>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</li>&ndash;&gt;-->
-
-                        <!--&lt;!&ndash;&lt;!&ndash;<li>&ndash;&gt;&ndash;&gt;-->
-                            <!--&lt;!&ndash;&lt;!&ndash;<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>&ndash;&gt;&ndash;&gt;-->
-                            <!--&lt;!&ndash;&lt;!&ndash;<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>&ndash;&gt;&ndash;&gt;-->
-                        <!--&lt;!&ndash;&lt;!&ndash;</li>&ndash;&gt;&ndash;&gt;-->
-                    <!--&lt;!&ndash;</ul>&ndash;&gt;-->
-                <!--&lt;!&ndash;</div>&ndash;&gt;-->
-            <!--</form>-->
-        <!--</div>-->
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
 
         <div class="btn-group-sm" id="toolbar" role="group">
             <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="console:zhEquipment:add">

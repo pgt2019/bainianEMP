@@ -1,6 +1,8 @@
 package com.ruoyi.console.utils;
 
 import com.ruoyi.console.domain.ZhUser;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -13,8 +15,6 @@ import java.net.URLEncoder;
  */
 
 public class ZhEquipmentUtil {
-
-    private static final String serverIp = "http://192.168.1.199:8089";    //设备ip暂时写死  日后需要持久化
 
    /* 设备配置信息 api  start */
 
@@ -40,7 +40,7 @@ public class ZhEquipmentUtil {
      */
     public static String updateDeviceOption(String token,String deviceNumber,String title, File logo,File startLogo,String threshold,String identificationType,String
             verifyIdCard ,String voiceHint,String outDoor,String isOpenLiving,String isOpenAgeGender,String isOpenSafetyHat,
-                                            String callBackAddress,String saveLocalRecord,String idVerifyThreshold){
+                                            String callBackAddress,String saveLocalRecord,String idVerifyThreshold,String deviceIp){
         String params = "deviceNumber="+deviceNumber;
         if(logo != null){
             params += "&logo="+logo;
@@ -71,10 +71,24 @@ public class ZhEquipmentUtil {
         }if(idVerifyThreshold != null){
             params += "&idVerifyThreshold="+idVerifyThreshold;
         }
-        String result =HttpRequest.sendPost(serverIp+"/device/setting/update",params,token);
+        String result =HttpRequest.sendPost(deviceIp+"/device/setting/update",params,token);
         System.out.println(result);
         return result;
     }
+
+    public static String deviceOptionLogoUpload(String token,String logoImg,String deviceNumber,String deviceIp){
+        String params = "deviceNumber="+deviceNumber+"&logo="+logoImg;
+        String result =HttpRequest.sendPost(deviceIp+"/device/setting/update",params,token);
+        System.out.println(result);
+        return result;
+    }
+    public static String deviceOptionStartLogoUpload(String token,String logoImg,String deviceNumber,String deviceIp){
+        String params = "deviceNumber="+deviceNumber+"&startLogo="+logoImg;
+        String result =HttpRequest.sendPost(deviceIp+"/device/setting/update",params,token);
+        System.out.println(result);
+        return result;
+    }
+
 
     /**
      *  OFFLINE-API-DEVICE-02 查询设备配置
@@ -83,9 +97,9 @@ public class ZhEquipmentUtil {
      * @param token                     token
      * @return
      */
-    public static String getDeviceOptions(String deviceNumber,String token){
+    public static String getDeviceOptions(String deviceNumber,String token,String deviceIp){
         String params = "deviceNumber="+deviceNumber;
-        String result =HttpRequest.sendGet(serverIp+"/device/setting/query",params,token);
+        String result =HttpRequest.sendGet(deviceIp+"/device/setting/query",params,token);
         System.out.println(result);
         return result;
     }
@@ -103,10 +117,10 @@ public class ZhEquipmentUtil {
      * @return
      *          {"code": "1","message": “图片人脸姿势不达标"}
      */
-    public static String checkFace(String faceImage,String token) throws UnsupportedEncodingException {
+    public static String checkFace(String faceImage,String token,String deviceIp) throws UnsupportedEncodingException {
         String params = "faceImage="+faceImage;
         System.out.println(token);
-        String result =HttpRequest.sendPost(serverIp+"/person/face/checkFace",params,token);
+        String result =HttpRequest.sendPost(deviceIp+"/person/face/checkFace",params,token);
         return result;
     }
 
@@ -119,9 +133,9 @@ public class ZhEquipmentUtil {
      * @return
      *          {"code": "0","message": "操作成功"}
      */
-    public static synchronized String addBase64Image(String personNumber,String faceImage,String token) throws UnsupportedEncodingException {
+    public static synchronized String addBase64Image(String personNumber,String faceImage,String token,String deviceIp) throws UnsupportedEncodingException {
         String params = "personNumber="+personNumber+"&faceImage="+faceImage;
-        String result =HttpRequest.sendPost(serverIp+"/person/face/addBase64",params,token);
+        String result =HttpRequest.sendPost(deviceIp+"/person/face/addBase64",params,token);
         System.out.println(result);
         return result;
     }
@@ -140,9 +154,9 @@ public class ZhEquipmentUtil {
      *                          }]
      *                       }
      */
-    public static String getFaceImage(String personNumber, String token){
+    public static String getFaceImage(String personNumber, String token,String deviceIp){
         String params = "personNumber="+personNumber;
-        String result =HttpRequest.sendGet(serverIp+"/person/face/query",params,token);
+        String result =HttpRequest.sendGet(deviceIp+"/person/face/query",params,token);
         System.out.println(result);
         return result;
     }
@@ -156,12 +170,12 @@ public class ZhEquipmentUtil {
      * @return
      *          {"code": "0","message": "操作成功"}
      */
-    public static synchronized String deleteImage(String personNumber,String faceId,String token){
+    public static synchronized String deleteImage(String personNumber,String faceId,String token,String deviceIp){
         String params = "personNumber="+personNumber;
         if(faceId != null){
             params += "&faceId="+faceId;
         }
-        String result =HttpRequest.sendPost(serverIp+"/person/face/delete",params,token);
+        String result =HttpRequest.sendPost(deviceIp+"/person/face/delete",params,token);
         System.out.println(result);
         return result;
     }
@@ -178,7 +192,7 @@ public class ZhEquipmentUtil {
      * @return
      *          {"code": "0","message": "操作成功"}
      */
-    public static synchronized String updateUser(ZhUser zhUser, String token){
+    public static synchronized String updateUser(ZhUser zhUser, String token,String deviceIp){
         String params = "personNumber="+zhUser.getPersonNumber();
         if(zhUser.getName() != null){
             params += "&name="+zhUser.getName();
@@ -192,7 +206,7 @@ public class ZhEquipmentUtil {
         if(zhUser.getExtendInfo() != null){
             params += "&extendInfo="+zhUser.getExtendInfo();
         }
-        String result =HttpRequest.sendPost(serverIp+"/person/update",params,token);
+        String result =HttpRequest.sendPost(deviceIp+"/person/update",params,token);
         System.out.println(result);
         return result;
     }
@@ -205,14 +219,14 @@ public class ZhEquipmentUtil {
      * @return
      *          {"code": "0","message": "操作成功"}
      */
-    public static synchronized String addUser(ZhUser zhUser, String token){
+    public static synchronized String addUser(ZhUser zhUser, String token,String deviceIp){
         String params = "";
 
         if(zhUser.getName() != null){
             params += "name="+zhUser.getName();
         }
         if(zhUser.getPersonNumber() != null){
-            params += "personNumber="+zhUser.getPersonNumber();
+            params += "&personNumber="+zhUser.getPersonNumber();
         }
         if(zhUser.getIcCard() != null){
             params += "&icCard="+zhUser.getIcCard();
@@ -223,7 +237,7 @@ public class ZhEquipmentUtil {
         if(zhUser.getExtendInfo() != null){
             params += "&extendInfo="+zhUser.getExtendInfo();
         }
-        String result =HttpRequest.sendPost(serverIp+"/person/add",params,token);
+        String result =HttpRequest.sendPost(deviceIp+"/person/add",params,token);
         System.out.println(result);
         return result;
     }
@@ -238,9 +252,9 @@ public class ZhEquipmentUtil {
      * @return
      *              {"code": "0","message": "操作成功"}
      */
-    public static synchronized String deleteUser(String personNumber,String token){
+    public static synchronized String deleteUser(String personNumber,String token,String deviceIp){
         String params = "personNumber="+personNumber;
-        String result =HttpRequest.sendPost(serverIp+"/person/delete",params,token);
+        String result =HttpRequest.sendPost(deviceIp+"/person/delete",params,token);
         System.out.println(result);
         return result;
     }
@@ -253,12 +267,29 @@ public class ZhEquipmentUtil {
      * @param token             token
      * @return
      */
-    public static String queryUserList(String personNumber,String token){
+    public static String queryUserList(String personNumber,String keyWord,Integer startIndex,String token,String deviceIp){
         String params = "";
         if(personNumber != null){
-            params += "personNumber="+personNumber;
+            if(params.length() == 0){
+                params += "personNumber="+personNumber;
+            }else{
+                params += "&personNumber="+personNumber;
+            }
+        }if(keyWord != null){
+            if(params.length() == 0){
+                params += "keyWord="+keyWord;
+            }else{
+                params += "&keyWord="+keyWord;
+            }
+        }if(startIndex != null){
+            if(params.length() == 0){
+                params += "startIndex="+startIndex;
+            }else{
+                params += "&startIndex="+startIndex;
+            }
         }
-        String result =HttpRequest.sendGet(serverIp+"/person/queryList",params,token);
+
+        String result =HttpRequest.sendGet(deviceIp+"/person/queryList",params,token);
         System.out.println(result);
         return result;
     }
@@ -277,7 +308,7 @@ public class ZhEquipmentUtil {
      * @param token                 token
      * @return
      */
-    public static String getRecord(String personNumber,String startTime,String endTime,String startIndex,String length,String token){
+    public static String getRecord(String personNumber,String startTime,String endTime,String startIndex,String length,String token,String deviceIp){
         String params = "";
         if(personNumber != null){
             params += "personNumber="+personNumber;
@@ -310,7 +341,7 @@ public class ZhEquipmentUtil {
                 params += "&length="+length;
             }
         }
-        String result =HttpRequest.sendGet(serverIp+"/record/query",params,token);
+        String result =HttpRequest.sendGet(deviceIp+"/record/query",params,token);
         System.out.println(result);
         return result;
     }
@@ -325,13 +356,13 @@ public class ZhEquipmentUtil {
      * @param sign              MD5-32(activationCode + deviceNumber + timestamp)
      * @return  token
      */
-    public static String getToken(String ip,String deviceNumber,String  activationCode,long timestamp,String sign){
+    public static String getToken(String ip,String deviceNumber,String  activationCode,long timestamp,String sign,String deviceIp){
         String params = "ip="+ip
                 +"&activationCode="+activationCode
                 +"&deviceNumber="+deviceNumber
                 +"&timestamp="+timestamp
                 +"&sign="+sign;
-        String result =HttpRequest.sendPost(serverIp+"/auth",params,null);
+        String result =HttpRequest.sendPost(deviceIp+"/auth",params,null);
         System.out.println(result);
         return result;
     }

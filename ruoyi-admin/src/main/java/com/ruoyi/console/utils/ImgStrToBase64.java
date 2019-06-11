@@ -73,7 +73,7 @@ public class ImgStrToBase64 {
             }
         }
         // 对字节数组Base64编码
-        return new BASE64Encoder().encode(buffer);
+        return "data:image/png;base64,"+new BASE64Encoder().encode(buffer);
     }
 
     /**

@@ -36,4 +36,8 @@ public class TimestampToDateStr {
         }
         return "";
     }
+
+    public static void main(String[] args){
+        System.out.println(TimestampToDateStr.timeStamp2Date("1559615178",null));
+    }
 }
