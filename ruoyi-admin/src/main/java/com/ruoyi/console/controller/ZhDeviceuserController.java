@@ -73,6 +73,9 @@ public class ZhDeviceuserController extends BaseController
 	public TableDataInfo list(ZhDeviceuser zhDeviceuser)
 	{
 		startPage();
+		SysUser user = ShiroUtils.getSysUser();
+		String loginName = user.getLoginName();
+		zhDeviceuser.setCreateBy(loginName);
         List<ZhDeviceuser> list = zhDeviceuserService.selectZhDeviceuserList(zhDeviceuser);
 		return getDataTable(list);
 	}
@@ -288,7 +291,7 @@ public class ZhDeviceuserController extends BaseController
 	 * @param personNumber
 	 * @param deviceIp
 	 */
-	private void syncDeviceFaceImage(String token,String personNumber,String deviceIp) throws UnsupportedEncodingException {
+	private AjaxResult syncDeviceFaceImage(String token,String personNumber,String deviceIp) throws UnsupportedEncodingException {
 
 		ZhFaceimage zhFaceimage = new ZhFaceimage();
 		zhFaceimage.setPersonNumber(personNumber);
@@ -298,6 +301,9 @@ public class ZhDeviceuserController extends BaseController
 			String faceImagedata = tempFaceImage.getFaceImage().substring(22);
 			faceImagedata = URLEncoder.encode(faceImagedata,"utf-8");
 			String checkFaceImageRes = ZhEquipmentUtil.checkFace(faceImagedata,token,deviceIp);
+			if(checkFaceImageRes.length() == 0){
+				return AjaxResult.error("人员编号:" + personNumber + " 人脸照片验证失败  请在设备人员管理中添加");
+			}
 			JSONObject json = JSONObject.parseObject(checkFaceImageRes);
 			String checkCode = json.getString("code");
 			if(checkCode.equals("0")){
@@ -309,5 +315,6 @@ public class ZhDeviceuserController extends BaseController
 				}
 			}
 		}
+		return AjaxResult.success("同步成功");
 	}
 }

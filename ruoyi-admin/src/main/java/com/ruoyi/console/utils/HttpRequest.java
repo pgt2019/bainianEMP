@@ -1,6 +1,8 @@
 package com.ruoyi.console.utils;
 
+import java.awt.*;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -157,7 +159,7 @@ public class HttpRequest {
         Runtime runtime = Runtime.getRuntime();
         Process process;
         try {
-            process = runtime.exec("ping " + ip);
+            process = runtime.exec("ping -n 1 -w 300 " + ip);
             InputStream is = process.getInputStream();
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
@@ -187,13 +189,17 @@ public class HttpRequest {
         return connect;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 //        //发送 POST 请求
-        String sr=HttpRequest.sendPost("http://192.168.1.199:8089/auth", "",null);
-        System.out.println(sr);
+//        String sr=HttpRequest.sendPost("http://192.168.1.199:8089/auth", "",null);
+//        System.out.println(sr);
 
 //        System.out.println(HttpRequest.isConnect("192.168.1.198"));
 
+        File file = new File("C:/Users/Administrator/Pictures/logo.png");
+        URL imgUrl = new URL("file:///" + file.getPath()); // file为该图片文件对象,通过getPath()方法可以获取该图片的地址）
+        Image img = Toolkit.getDefaultToolkit().getImage(imgUrl);// 获取图片对象
+        System.out.println(img);
     }
 
 }

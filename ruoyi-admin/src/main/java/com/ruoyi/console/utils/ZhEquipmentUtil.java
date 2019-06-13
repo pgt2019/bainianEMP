@@ -38,7 +38,7 @@ public class ZhEquipmentUtil {
      * @param idVerifyThreshold 人证合验阈值
      * @return
      */
-    public static String updateDeviceOption(String token,String deviceNumber,String title, File logo,File startLogo,String threshold,String identificationType,String
+    public static String updateDeviceOption(String token,String deviceNumber,String title, String logo,String startLogo,String threshold,String identificationType,String
             verifyIdCard ,String voiceHint,String outDoor,String isOpenLiving,String isOpenAgeGender,String isOpenSafetyHat,
                                             String callBackAddress,String saveLocalRecord,String idVerifyThreshold,String deviceIp){
         String params = "deviceNumber="+deviceNumber;

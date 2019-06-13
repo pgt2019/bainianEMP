@@ -846,6 +846,7 @@
                         }else {
                             $.modal.alertError(res.msg);
                         }
+                        $.modal.closeLoading();
                     }
                 })
             },

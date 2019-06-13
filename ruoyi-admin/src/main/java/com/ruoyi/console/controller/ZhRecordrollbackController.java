@@ -1,6 +1,9 @@
 package com.ruoyi.console.controller;
 
 import java.util.List;
+
+import com.ruoyi.framework.util.ShiroUtils;
+import com.ruoyi.system.domain.SysUser;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -61,11 +64,14 @@ public class ZhRecordrollbackController extends BaseController
 	public TableDataInfo list(ZhRecordrollback zhRecordrollback, HttpServletRequest request)
 	{
 		startPage();
+		SysUser user = ShiroUtils.getSysUser();
+		String loginName = user.getLoginName();
 		HttpSession session = request.getSession();
 		Object deviceNumber = session.getAttribute("meid");
 		if(deviceNumber != null){
 			zhRecordrollback.setDeviceNumber(deviceNumber.toString());
 		}
+		zhRecordrollback.setCreateBy(loginName);
         List<ZhRecordrollback> list = zhRecordrollbackService.selectZhRecordrollbackList(zhRecordrollback);
 		return getDataTable(list);
 	}

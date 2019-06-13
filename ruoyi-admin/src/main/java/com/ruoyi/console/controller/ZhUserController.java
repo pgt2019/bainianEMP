@@ -9,6 +9,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.console.utils.GetMD5;
 import com.ruoyi.console.utils.ZhEquipmentUtil;
+import com.ruoyi.framework.util.ShiroUtils;
+import com.ruoyi.system.domain.SysUser;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -61,6 +63,9 @@ public class ZhUserController extends BaseController
 	public TableDataInfo list(ZhUser zhUser)
 	{
 		startPage();
+		SysUser user = ShiroUtils.getSysUser();
+		String loginName = user.getLoginName();
+		zhUser.setCreateBy(loginName);
         List<ZhUser> list = zhUserService.selectZhUserList(zhUser);
 		return getDataTable(list);
 	}

@@ -47,29 +47,23 @@
                                     <input type="text" autocomplete="off" class="form-control" name="title" th:field="*{title}" placeholder="请输入用户名称">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <a data-toggle="modal" data-target="#logoUpload" >
-                                    <label class="col-sm-2 control-label">logo</label>
-                                    <div class="col-sm-10">
-                                        <img name="logo" th:src="*{logo}">
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="form-group">
-                                <a data-toggle="modal" data-target="#startFigureUpload" >
-                                    <label class="col-sm-2 control-label">起始页</label>
-                                    <div class="col-sm-10">
-                                        <img name="startFigure" th:src="*{startFigure}" style="width: 100px;height: auto;" >
-                                    </div>
-                                </a>
-                            </div>
                             <!--<div class="form-group">-->
-                                <!--<label class="col-sm-2 control-label">logo</label>-->
-                                <!--<div class="col-sm-10">-->
-                                    <!--<input type="text" autocomplete="off" class="form-control" name="logo" maxlength="11"  th:field="*{logo}">-->
-                                <!--</div>-->
+                                <!--<a data-toggle="modal" data-target="#logoUpload" >-->
+                                    <!--<label class="col-sm-2 control-label">logo</label>-->
+                                    <!--<div class="col-sm-10">-->
+                                        <!--<img name="logo" th:src="*{logo}">-->
+                                    <!--</div>-->
+                                <!--</a>-->
                             <!--</div>-->
-                            <div class="form-group">
+                            <!--<div class="form-group">-->
+                                <!--<a data-toggle="modal" data-target="#startFigureUpload" >-->
+                                    <!--<label class="col-sm-2 control-label">起始页</label>-->
+                                    <!--<div class="col-sm-10">-->
+                                        <!--<img name="startFigure" th:src="*{startFigure}" style="width: 100px;height: auto;" >-->
+                                    <!--</div>-->
+                                <!--</a>-->
+                            <!--</div>-->
+                            <div class="form-group" style="display: none;">
                                 <label class="col-sm-2 control-label">识别类型</label>
                                 <div class="col-sm-10">
                                     <input type="text" autocomplete="off" class="form-control" name="identificationType" th:field="*{identificationType}" placeholder="识别类型" oninput="value=value.replace(/[^\d]/g,'')">
@@ -129,7 +123,7 @@
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
                                     <button type="button" class="btn btn-sm btn-primary" onclick="submitDeviceOption()"><i class="fa fa-check"></i>保 存</button>&nbsp;
-                                    <button type="button" class="btn btn-sm btn-danger" onclick="history.back(-1)"><i class="fa fa-reply-all"></i>关 闭 </button>
+                                    <!--<button type="button" class="btn btn-sm btn-danger" onclick="history.back(-1)"><i class="fa fa-reply-all"></i>关 闭 </button>-->
                                 </div>
                             </div>
                         </form>

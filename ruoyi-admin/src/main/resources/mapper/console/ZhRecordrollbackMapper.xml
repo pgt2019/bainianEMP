@@ -16,10 +16,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="idCard"    column="idCard"    />
         <result property="recognizedType"    column="recognizedType"    />
         <result property="extendInfo"    column="extendInfo"    />
+        <result property="createBy"    column="create_by"    />
     </resultMap>
 	
 	<sql id="selectZhRecordrollbackVo">
-        select id, deviceNumber, recognizeTime, name, personNumber, similarity, faceImage, icCard, idCard, recognizedType, extendInfo from zh_recordrollback
+        select id, deviceNumber, recognizeTime, name, personNumber, similarity, faceImage, icCard, idCard, recognizedType, extendInfo,create_by from zh_recordrollback
     </sql>
 	
     <select id="selectZhRecordrollbackList" parameterType="ZhRecordrollback" resultMap="ZhRecordrollbackResult">
@@ -35,6 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              <if test="icCard != null  and icCard != '' "> and icCard = #{icCard}</if>
              <if test="idCard != null  and idCard != '' "> and idCard = #{idCard}</if>
              <if test="recognizedType != null  and recognizedType != '' "> and recognizedType = #{recognizedType}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
              <if test="extendInfo != null "> and extendInfo = #{extendInfo}</if>
          </where>
         order by recognizeTime desc
@@ -57,6 +59,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="icCard != null  and icCard != ''  ">icCard,</if>
 			<if test="idCard != null  and idCard != ''  ">idCard,</if>
 			<if test="recognizedType != null  and recognizedType != ''  ">recognizedType,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
 			<if test="extendInfo != null  ">extendInfo,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -69,6 +72,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="icCard != null  and icCard != ''  ">#{icCard},</if>
 			<if test="idCard != null  and idCard != ''  ">#{idCard},</if>
 			<if test="recognizedType != null  and recognizedType != ''  ">#{recognizedType},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
 			<if test="extendInfo != null  ">#{extendInfo},</if>
          </trim>
     </insert>

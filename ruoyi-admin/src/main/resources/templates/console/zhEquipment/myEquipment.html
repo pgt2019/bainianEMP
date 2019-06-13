@@ -29,19 +29,19 @@
         <!--<i><img th:src="@{/ruoyi/png/greenPoint.png}" style="width: 25px;height: 25px">&nbsp;在线</i>-->
     <!--</div>-->
     <div class="menuBtn">
-        <a th:href="@{/console/zhEquipment/toUserView}">
+        <a onclick="toModalView('/zhEquipment/toUserView','设备人员管理')">
             <img th:src="@{/ruoyi/png/userManage.png}" class="menuBtn-png"><br/>
             <span>人员人脸管理</span>
         </a>
     </div>
     <div class="menuBtn menuBtn-margin">
-        <a th:href="@{/console/zhEquipment/toDeviceView}">
+        <a onclick="toModalView('/zhEquipment/toDeviceView','设备配置信息')">
             <img th:src="@{/ruoyi/png/setting.png}" class="menuBtn-png"><br/>
             <span>设备配置信息</span>
         </a>
     </div>
     <div class="menuBtn menuBtn-margin">
-        <a th:href="@{/console/zhRecordrollback}">
+        <a onclick="toModalView('/zhRecordrollback','设备识别记录')" >
             <img th:src="@{/ruoyi/png/record.png}" class="menuBtn-png"><br/>
             <span>设备识别记录</span>
         </a>
@@ -56,9 +56,12 @@
 <div th:include="include :: footer"></div>
 <script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; </script>
 <script src="../static/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/ruoyi/js/ry-ui.js}"></script>
 <script th:inline="javascript">
-    var prefix = ctx + "console/zhEquipment";
-    var manageUrl = prefix + "/toUserView";
+    var prefix = ctx + "console";
+    function toModalView(url,title) {
+        $.modal.openBN(title,prefix+url,'max','max');
+    }
 </script>
 </body>
 </html>

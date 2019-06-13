@@ -38,7 +38,7 @@ public class ZhRecordrollback extends BaseEntity
 	/** 扩展字段 */
 	private String extendInfo;
 
-	public void setId(Integer id) 
+	public void setId(Integer id)
 	{
 		this.id = id;
 	}

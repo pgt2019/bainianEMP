@@ -13,6 +13,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.console.domain.*;
 import com.ruoyi.console.service.IZhRecordrollbackService;
 import com.ruoyi.console.utils.*;
+import com.ruoyi.framework.util.ShiroUtils;
+import com.ruoyi.system.domain.SysUser;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -80,6 +82,13 @@ public class ZhEquipmentController extends BaseController
         String recognizedType = request.getParameter("recognizedType");  //识别类型
         String extendInfo = request.getParameter("extendInfo");          //扩展字段
 
+        String loginName = "";
+        ZhEquipment zhEquipment = new ZhEquipment();
+        zhEquipment.setMeid(deviceNumber);
+        List<ZhEquipment> zhEquipmentList = zhEquipmentService.selectZhEquipmentList(zhEquipment);
+        for(ZhEquipment zhEquipment1:zhEquipmentList){
+            loginName = zhEquipment1.getCreateBy();
+        }
         zhRecordrollback.setDeviceNumber(deviceNumber);
         zhRecordrollback.setFaceImage(faceImage);
         zhRecordrollback.setName(name);
@@ -90,6 +99,7 @@ public class ZhEquipmentController extends BaseController
         zhRecordrollback.setRecognizedType(recognizedType);
         zhRecordrollback.setExtendInfo(extendInfo);
         zhRecordrollback.setRecognizeTime(format.parse(TimestampToDateStr.timeStamp2Date(recognizeTime,"yyyy-MM-dd HH:mm:ss")));
+        zhRecordrollback.setCreateBy(loginName);
         zhRecordrollbackService.insertZhRecordrollback(zhRecordrollback);
 
     }
@@ -125,25 +135,33 @@ public class ZhEquipmentController extends BaseController
 	 * @return
 	 */
 	@GetMapping("/manage/{id}")
-	public String myEqManage(@PathVariable("id") String id,HttpServletRequest request) throws ClassCastException, UnknownHostException {
-        HttpSession session = request.getSession();
-	    String ids = id.substring(0,id.indexOf(","));                                   //data-id 所选绑定的设备id获取
-        String meid = id.substring(id.indexOf(",")+1,id.indexOf(",",id.indexOf(",")+1));         //设备号
-        String activationCode = id.substring(id.indexOf(",",id.indexOf(",")+1)+1,id.lastIndexOf(","));         //设备号
-        String deviceIp = id.substring(id.lastIndexOf(",")+1);                //设备ip
-        session.setAttribute("dataId",ids);
-        session.setAttribute("meid",meid);
-        session.setAttribute("deviceIp",deviceIp);
-        deviceIp = "http://"+deviceIp+":8089";           //设备ip
-	    String ip = InetAddress.getLocalHost().getHostAddress();                        //获得本地ip
-        long timestamp = new Date().getTime()/1000;                                    //时间戳
-        String sign = GetMD5.MD5(activationCode + meid + timestamp);          //鉴权md5
-        String result = ZhEquipmentUtil.getToken(ip,meid,activationCode,timestamp,sign,deviceIp);//鉴权请求
-        JSONObject jsonObject = JSONObject.parseObject(result);
-        Object resCode = jsonObject.get("code").toString();
-        if(resCode.equals("0")){
-            session.setAttribute("token",jsonObject.get("data"));                   //token存入session
+	public String myEqManage(@PathVariable("id") String id,HttpServletRequest request) {
+        try {
+            HttpSession session = request.getSession();
+            String ids = id.substring(0,id.indexOf(","));                                   //data-id 所选绑定的设备id获取
+            String meid = id.substring(id.indexOf(",")+1,id.indexOf(",",id.indexOf(",")+1));         //设备号
+            String activationCode = id.substring(id.indexOf(",",id.indexOf(",")+1)+1,id.lastIndexOf(","));         //设备号
+            String deviceIp = id.substring(id.lastIndexOf(",")+1);                //设备ip
+            session.setAttribute("dataId",ids);
+            session.setAttribute("meid",meid);
+            session.setAttribute("deviceIp",deviceIp);
+            deviceIp = "http://"+deviceIp+":8089";           //设备ip
+            String ip = null;                        //获得本地ip
+            ip = InetAddress.getLocalHost().getHostAddress();
+            long timestamp = new Date().getTime()/1000;                                    //时间戳
+            String sign = GetMD5.MD5(activationCode + meid + timestamp);          //鉴权md5
+            String result = ZhEquipmentUtil.getToken(ip,meid,activationCode,timestamp,sign,deviceIp);//鉴权请求
+            JSONObject jsonObject = JSONObject.parseObject(result);
+            Object resCode = jsonObject.get("code").toString();
+            if(resCode.equals("0")){
+                session.setAttribute("token",jsonObject.get("data"));                   //token存入session
+            }
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
+
 
 	    return prefix + "/myEquipment";
 	}
@@ -250,8 +268,8 @@ public class ZhEquipmentController extends BaseController
         return prefix + "/deviceOption_show";
     }
 
-    File logoUploadFile = null;
-    File startLogoUploadFile = null;
+    String logoUploadData = null;
+    String startLogoUploadData = null;
 
     /**
      * 配置设备信息  保存
@@ -276,7 +294,7 @@ public class ZhEquipmentController extends BaseController
         String verifyIdCard = deviceOption.get("verifyIdCard").toString();
         String voiceHint = deviceOption.get("voiceHint").toString();
 
-        String result = ZhEquipmentUtil.updateDeviceOption(token.toString(),deviceNumber,title,logoUploadFile,startLogoUploadFile,threshold,identificationType,verifyIdCard,voiceHint,isOutDoor,isOpenLiving,null,null,callBackAddress,saveLocalRecordTime,null,deviceIp);
+        String result = ZhEquipmentUtil.updateDeviceOption(token.toString(),deviceNumber,title,logoUploadData,startLogoUploadData,threshold,identificationType,verifyIdCard,voiceHint,isOutDoor,isOpenLiving,null,null,callBackAddress,saveLocalRecordTime,null,deviceIp);
         JSONObject jsonObject = JSONObject.parseObject(result);
         Object resCode = jsonObject.get("code").toString();
         if(resCode.equals("0")){
@@ -296,15 +314,14 @@ public class ZhEquipmentController extends BaseController
     {
         if (!uploadImg.isEmpty()) {
             try {
-                // 获取文件名
-                String fileName = uploadImg.getOriginalFilename();
-                // 获取文件后缀
-                String prefix=fileName.substring(fileName.lastIndexOf("."));
-                // 用uuid作为文件名，防止生成的临时文件重复
-                logoUploadFile = File.createTempFile(fileName, prefix);
-                // MultipartFile to File
-                uploadImg.transferTo(logoUploadFile);
-                //程序结束时，删除临时文件
+                HttpSession session = request.getSession();
+                Object token = session.getAttribute("token");                           //获取token
+                Object personNumber = session.getAttribute("personNumber");
+                String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
+                BASE64Encoder encoder = new BASE64Encoder();
+                String data = encoder.encode(uploadImg.getBytes());                        // 通过base64来转化图片
+                data = URLEncoder.encode(data,"utf-8");
+                logoUploadData = data;
                 return AjaxResult.success("提交成功");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -325,14 +342,14 @@ public class ZhEquipmentController extends BaseController
         if (!uploadImg.isEmpty()) {
             try {
                 // 获取文件名
-                String fileName = uploadImg.getOriginalFilename();
-                // 获取文件后缀
-                String prefix=fileName.substring(fileName.lastIndexOf("."));
-                // 用uuid作为文件名，防止生成的临时文件重复
-                startLogoUploadFile = File.createTempFile(fileName, prefix);
-                // MultipartFile to File
-                uploadImg.transferTo(startLogoUploadFile);
-                //程序结束时，删除临时文件
+//                String fileName = uploadImg.getOriginalFilename();
+//                // 获取文件后缀
+//                String prefix=fileName.substring(fileName.lastIndexOf("."));
+//                // 用uuid作为文件名，防止生成的临时文件重复
+//                startLogoUploadFile = File.createTempFile(fileName, prefix);
+//                // MultipartFile to File
+//                uploadImg.transferTo(startLogoUploadFile);
+//                //程序结束时，删除临时文件
                 return AjaxResult.success("提交成功");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -396,6 +413,9 @@ public class ZhEquipmentController extends BaseController
 	public TableDataInfo list(ZhEquipment zhEquipment)
 	{
 		startPage();
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
+        zhEquipment.setCreateBy(loginName);
         List<ZhEquipment> list = zhEquipmentService.selectZhEquipmentList(zhEquipment);
 		return getDataTable(list);
 	}
@@ -681,7 +701,10 @@ public class ZhEquipmentController extends BaseController
 	public AjaxResult addSave(ZhEquipment zhEquipment)
 	{
 		Calendar calendar = Calendar.getInstance();
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
 		zhEquipment.setCreateTime(calendar.getTime());
+		zhEquipment.setCreateBy(loginName);
 		return toAjax(zhEquipmentService.insertZhEquipment(zhEquipment));
 	}
 

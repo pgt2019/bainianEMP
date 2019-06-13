@@ -3,6 +3,13 @@
 <head>
 	<th:block th:include="include :: header('设备人员列表')" />
 </head>
+<style>
+	.uploadMes{
+		font-size: 10px;
+		color: red;
+		display: block;
+	}
+</style>
 <body class="gray-bg">
     
      <div class="container-div">
@@ -27,21 +34,6 @@
 								id卡号：<input type="text" name="idCard"/>
 							</li>
 
-							<!--<li>-->
-								<!--扩展字段：<input type="text" name="extendInfo"/>-->
-							<!--</li>-->
-
-							<!--<li>-->
-								<!--人脸照片（实体类用）：<input type="text" name="faceImage"/>-->
-							<!--</li>-->
-
-							<!--<li>-->
-								<!--创建人：<input type="text" name="createBy"/>-->
-							<!--</li>-->
-
-							<!--<li>-->
-								<!--创建时间：<input type="text" name="createTime"/>-->
-							<!--</li>-->
 
 							<li>
 								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -62,15 +54,37 @@
 				<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="console:zhDeviceuser:remove">
 					<i class="fa fa-remove"></i> 删除
 				</a>
-				<!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="console:zhDeviceuser:export">-->
-						<!--<i class="fa fa-download"></i> 导出-->
-				 <!--</a>-->
+				<a class="btn btn-warning" data-toggle="modal" data-target="#batchAdd" >
+						<i class="fa fa-download"></i> 批量添加
+				 </a>
 			</div>
 			<div class="col-sm-12 select-table table-striped">
 				<table id="bootstrap-table" data-mobile-responsive="true"></table>
 			</div>
 		</div>
 	</div>
+
+	 <div class="modal fade" id="batchAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		 <div class="modal-dialog">
+			 <div class="modal-content">
+				 <div class="modal-header">
+					 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					 <h4 class="modal-title" id="batchAddLabel">批量添加人员</h4>
+				 </div>
+				 <div class="modal-body">
+					 <span class="uploadMes">要求：上传存在需要添加的人员人脸图片文件夹的压缩包，图片命名规范为 (姓名_ic卡_身份证.jpg/png) 无对应数据使用null占位填充。压缩包要求rar或zip。单张图片大小不超过5Mb，压缩包大小50Mb以内 </span>
+					 上传压缩包:<input type="file" name="zipFile"/>
+					 解压密码(为空可不传):<input type="text" name="password"/></br>
+					 <button id="ok" value="测试">测试压缩包</button>
+				 </div>
+				 <div class="modal-footer">
+					 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					 <button type="button" class="btn btn-primary" onclick="checkImage('logo')">提交更改</button>
+				 </div>
+			 </div><!-- /.modal-content -->
+		 </div><!-- /.modal -->
+	 </div>
+
     <div th:include="include :: footer"></div>
     <script th:inline="javascript">
         var editFlag = [[${@permission.hasPermi('console:zhDeviceuser:edit')}]];
@@ -82,6 +96,7 @@
             var options = {
                 url: prefix + "/list",
                 createUrl: prefix + "/add",
+				batchUrl: prefix + "/batchAdd",
                 updateUrl: prefix + "/edit/{id}",
                 removeUrl: prefix + "/remove",
 				exportUrl: prefix + "/export",
