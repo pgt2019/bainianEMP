@@ -1,10 +1,18 @@
 package com.ruoyi.console.utils;
 
+import com.alibaba.druid.support.json.JSONUtils;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import okhttp3.*;
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.io.output.WriterOutputStream;
+import org.apache.http.util.TextUtils;
+import sun.net.www.http.HttpClient;
+
 import java.awt.*;
 import java.io.*;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,6 +86,25 @@ public class HttpRequest {
         return result;
     }
 
+    public static String sendPostHttpClient(String params,String url){
+        try {
+            HttpResponse<String> response = Unirest.post(url)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("cache-control", "no-cache")
+                    .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
+                    .header("Accept", "*/*")
+                    .header("accept-encoding", "gzip, deflate")
+                    .header("Connection", "keep-alive")
+                    .body(params)
+                    .asString();
+            System.out.println(response.getBody());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
     /**
      * 向指定 URL 发送POST方法的请求
      *
@@ -148,6 +175,89 @@ public class HttpRequest {
         }
         return result;
     }
+
+
+    public static String postBody(String actionUrl,Map<String,String> params) {
+
+        String BOUNDARY = java.util.UUID.randomUUID().toString();
+        String PREFIX = "--";
+        String LINEND = "\r\n";
+        String MULTIPART_FROM_DATA = "multipart/form-data";
+        String CHARSET = "UTF-8";
+        try{
+
+
+        URL uri = new URL(actionUrl);
+        HttpURLConnection conn = (HttpURLConnection) uri.openConnection();
+        conn.setReadTimeout(30 * 1000); // 缓存的最长时间
+        conn.setDoInput(true);// 允许输入
+        conn.setDoOutput(true);// 允许输出
+        conn.setUseCaches(false); // 不允许使用缓存
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("connection", "keep-alive");
+        conn.setRequestProperty("Charsert", "UTF-8");
+        conn.setRequestProperty("Content-Type", MULTIPART_FROM_DATA + ";boundary=" + BOUNDARY);
+        StringBuilder sb = new StringBuilder();
+        if (params!=null) {
+            // 首先组拼文本类型的参数
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                sb.append(PREFIX);
+                sb.append(BOUNDARY);
+                sb.append(LINEND);
+                sb.append("Content-Disposition: form-data; name=\""
+                        + entry.getKey() + "\"" + LINEND);
+                sb.append("Content-Type: text/plain; charset=" + CHARSET + LINEND);
+                sb.append("Content-Transfer-Encoding: 8bit" + LINEND);
+                sb.append(LINEND);
+                sb.append(entry.getValue());
+                sb.append(LINEND);
+            }
+
+        }
+
+        DataOutputStream outStream = new DataOutputStream(
+                conn.getOutputStream());
+        if (!TextUtils.isEmpty(sb.toString())) {
+            outStream.write(sb.toString().getBytes());
+        }
+        // 请求结束标志
+        byte[] end_data = (PREFIX + BOUNDARY + PREFIX + LINEND).getBytes();
+        outStream.write(end_data);
+        outStream.flush();
+
+        // 得到响应码
+        int res = conn.getResponseCode();
+        InputStream in = conn.getInputStream();
+        if (res == 200) {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            StringBuffer buffer = new StringBuffer();
+            String line = "";
+            while ((line = bufferedReader.readLine()) != null){
+                buffer.append(line);
+            }
+
+//          int ch;
+//          StringBuilder sb2 = new StringBuilder();
+//          while ((ch = in.read()) != -1) {
+//              sb2.append((char) ch);
+//          }
+            return buffer.toString();
+        }
+            outStream.close();
+            conn.disconnect();
+            return in.toString();
+        }  catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+       return "";
+    }
+
 
     /**
      * 检查设备连接状态  ping

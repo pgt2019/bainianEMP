@@ -79,5 +79,10 @@ public class ZhFaceimageServiceImpl implements IZhFaceimageService
 	{
 		return zhFaceimageMapper.deleteZhFaceimageByIds(Convert.toStrArray(ids));
 	}
-	
+
+	@Override
+	public int deleteZhFaceimageByPersonNumber(String personNumber) {
+		return zhFaceimageMapper.deleteZhFaceimageByPersonNumber(personNumber);
+	}
+
 }

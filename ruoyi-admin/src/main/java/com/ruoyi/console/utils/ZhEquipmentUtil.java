@@ -1,6 +1,9 @@
 package com.ruoyi.console.utils;
 
 import com.ruoyi.console.domain.ZhUser;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -38,42 +41,58 @@ public class ZhEquipmentUtil {
      * @param idVerifyThreshold 人证合验阈值
      * @return
      */
-    public static String updateDeviceOption(String token,String deviceNumber,String title, String logo,String startLogo,String threshold,String identificationType,String
+    public static String updateDeviceOption(String token,String deviceNumber,String title, File logo,File startLogo,String threshold,String identificationType,String
             verifyIdCard ,String voiceHint,String outDoor,String isOpenLiving,String isOpenAgeGender,String isOpenSafetyHat,
                                             String callBackAddress,String saveLocalRecord,String idVerifyThreshold,String deviceIp){
-        String params = "deviceNumber="+deviceNumber;
-        if(logo != null){
-            params += "&logo="+logo;
-        } if(title != null){
-            params += "&title="+title;
-        } if(startLogo != null){
-            params += "&startLogo="+startLogo;
-        }if(threshold != null){
-            params += "&threshold="+threshold;
+//        String params = "deviceNumber="+deviceNumber;
+
+
+        FormBody.Builder builderParams = new FormBody.Builder(); //普通参数请求体
+        FormBody paramsBody = builderParams.build();
+
+        builderParams.add("deviceNumber",deviceNumber);
+        if(title != null){
+//            params += "&title="+title;
+            builderParams.add("title",title);
+        } if(threshold != null){
+//            params += "&threshold="+threshold;
+            builderParams.add("threshold",threshold);
         }if(identificationType != null){
-            params += "&identificationType="+identificationType;
+//            params += "&identificationType="+identificationType;
+            builderParams.add("identificationType",identificationType);
         }if(verifyIdCard != null){
-            params += "&verifyIdCard="+verifyIdCard;
+//            params += "&verifyIdCard="+verifyIdCard;
+            builderParams.add("verifyIdCard",verifyIdCard);
         }if(voiceHint != null){
-            params += "&voiceHint="+voiceHint;
+//            params += "&voiceHint="+voiceHint;
+            builderParams.add("voiceHint",voiceHint);
         }if(outDoor != null){
-            params += "&outDoor="+outDoor;
+//            params += "&outDoor="+outDoor;
+            builderParams.add("outDoor",outDoor);
         }if(isOpenLiving != null){
-            params += "&isOpenLiving="+isOpenLiving;
+//            params += "&isOpenLiving="+isOpenLiving;
+            builderParams.add("isOpenLiving",isOpenLiving);
         }if(isOpenAgeGender != null){
-            params += "&isOpenAgeGender="+isOpenAgeGender;
+//            params += "&isOpenAgeGender="+isOpenAgeGender;
+            builderParams.add("isOpenAgeGender",isOpenAgeGender);
         }if(isOpenSafetyHat != null){
-            params += "&isOpenSafetyHat="+isOpenSafetyHat;
+//            params += "&isOpenSafetyHat="+isOpenSafetyHat;
+            builderParams.add("isOpenSafetyHat",isOpenSafetyHat);
         }if(callBackAddress != null){
-            params += "&callBackAddress="+callBackAddress;
+//            params += "&callBackAddress="+callBackAddress;
+            builderParams.add("callBackAddress",callBackAddress);
         }if(saveLocalRecord != null){
-            params += "&saveLocalRecord="+saveLocalRecord;
+//            params += "&saveLocalRecord="+saveLocalRecord;
+            builderParams.add("saveLocalRecord",saveLocalRecord);
         }if(idVerifyThreshold != null){
-            params += "&idVerifyThreshold="+idVerifyThreshold;
+//            params += "&idVerifyThreshold="+idVerifyThreshold;
+            builderParams.add("idVerifyThreshold",idVerifyThreshold);
         }
-        String result =HttpRequest.sendPost(deviceIp+"/device/setting/update",params,token);
-        System.out.println(result);
-        return result;
+//        String result =HttpRequest.sendPost(deviceIp+"/device/setting/update",params,token);
+//        String result = HttpRequest.sendPostHttpClient(token,deviceIp,deviceIp+"/device/setting/update",paramsBody,logo,startLogo);
+
+//        System.out.println(result);
+        return "";
     }
 
     public static String deviceOptionLogoUpload(String token,String logoImg,String deviceNumber,String deviceIp){

@@ -838,22 +838,20 @@
 			//设备管理
             manage: function(id) {
                 $.modal.loading("跳转中...");
-                $.ajax({
-                    url:prefix+"/onlineStatus?deviceIp="+id.substr(id.lastIndexOf(',')+1),
-                    success:function (res) {
-                        if (res.code == web_status.SUCCESS) {
-                            $.modal.openBN("设备管理",$.operate.manageUrl(id),'max','max');
-                        }else {
-                            $.modal.alertError(res.msg);
-                        }
-                        $.modal.closeLoading();
-                    }
-                })
+				$.modal.openBN("设备管理",$.operate.manageUrl(id),'max','max');
+				$.modal.closeLoading();
             },
             manageUrl: function(id) {
                 var url = $.common.isEmpty(id) ? $.table._option.manageUrl : $.table._option.manageUrl.replace("{id}", id);
                 return url;
             },
+			authDeviceUser:function(deviceNumber){
+        		$.modal.openBN("授权人员",$.operate.authUserUrl(deviceNumber),'max','max');
+			},
+			authUserUrl:function(deviceNumber){
+        		var url = $.common.isEmpty(deviceNumber) ? $.table._option.authUserUrl : $.table._option.authUserUrl.replace("deviceNumber",deviceNumber);
+				return url;
+			},
             // 删除信息
             remove: function(id) {
             	$.modal.confirm("确定删除该条" + $.table._option.modalName + "信息吗？", function() {

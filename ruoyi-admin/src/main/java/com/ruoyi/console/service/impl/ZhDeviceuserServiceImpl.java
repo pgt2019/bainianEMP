@@ -79,5 +79,15 @@ public class ZhDeviceuserServiceImpl implements IZhDeviceuserService
 	{
 		return zhDeviceuserMapper.deleteZhDeviceuserByIds(Convert.toStrArray(ids));
 	}
-	
+
+	@Override
+	public int deleteZhDeviceuserByPersonNumber(String personNumber) {
+		return zhDeviceuserMapper.deleteZhDeviceuserByPersonNumber(personNumber);
+	}
+
+	@Override
+	public List<ZhDeviceuser> selectunAuthUser(String deviceNumber,String loginUser) {
+		return zhDeviceuserMapper.selectunAuthUser(deviceNumber,loginUser);
+	}
+
 }

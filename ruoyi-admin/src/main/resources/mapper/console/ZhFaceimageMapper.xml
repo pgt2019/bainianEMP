@@ -54,6 +54,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<delete id="deleteZhFaceimageById" parameterType="Integer">
         delete from zh_faceimage where id = #{id}
     </delete>
+    <delete id="deleteZhFaceimageByPersonNumber" parameterType="String">
+        delete from zh_faceimage where personNumber = #{personNumber}
+    </delete>
 	
     <delete id="deleteZhFaceimageByIds" parameterType="String">
         delete from zh_faceimage where id in 

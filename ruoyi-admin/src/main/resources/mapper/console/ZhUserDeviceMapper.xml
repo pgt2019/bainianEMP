@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.console.mapper.ZhUserDeviceMapper">
+    
+    <resultMap type="ZhUserDevice" id="ZhUserDeviceResult">
+        <result property="id"    column="id"    />
+        <result property="deviceNumber"    column="deviceNumber"    />
+        <result property="personNumber"    column="personNumber"    />
+    </resultMap>
+	
+	<sql id="selectZhUserDeviceVo">
+        select id, deviceNumber, personNumber from zh_user_device
+    </sql>
+	
+    <select id="selectZhUserDeviceList" parameterType="ZhUserDevice" resultMap="ZhUserDeviceResult">
+        <include refid="selectZhUserDeviceVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="deviceNumber != null  and deviceNumber != '' "> and deviceNumber = #{deviceNumber}</if>
+             <if test="personNumber != null  and personNumber != '' "> and personNumber = #{personNumber}</if>
+         </where>
+    </select>
+    
+    <select id="selectZhUserDeviceById" parameterType="Integer" resultMap="ZhUserDeviceResult">
+        <include refid="selectZhUserDeviceVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertZhUserDevice" parameterType="ZhUserDevice" useGeneratedKeys="true" keyProperty="id">
+        insert into zh_user_device
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="deviceNumber != null  and deviceNumber != ''  ">deviceNumber,</if>
+			<if test="personNumber != null  and personNumber != ''  ">personNumber,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="deviceNumber != null  and deviceNumber != ''  ">#{deviceNumber},</if>
+			<if test="personNumber != null  and personNumber != ''  ">#{personNumber},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateZhUserDevice" parameterType="ZhUserDevice">
+        update zh_user_device
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deviceNumber != null  and deviceNumber != ''  ">deviceNumber = #{deviceNumber},</if>
+            <if test="personNumber != null  and personNumber != ''  ">personNumber = #{personNumber},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteZhUserDeviceById" parameterType="Integer">
+        delete from zh_user_device where id = #{id}
+    </delete>
+
+    <delete id="deleteZhUserDeviceByPersonNumber" parameterType="String">
+        delete from zh_user_device where personNumber = #{personNumber}
+    </delete>
+	
+    <delete id="deleteZhUserDeviceByIds" parameterType="String">
+        delete from zh_user_device where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,7 +1,9 @@
 package com.ruoyi.console.mapper;
 
 import com.ruoyi.console.domain.ZhDeviceuser;
-import java.util.List;	
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 设备人员 数据层
@@ -58,5 +60,8 @@ public interface ZhDeviceuserMapper
      * @return 结果
      */
 	public int deleteZhDeviceuserByIds(String[] ids);
-	
+
+	public int deleteZhDeviceuserByPersonNumber(String personNumber);
+
+	public List<ZhDeviceuser> selectunAuthUser(@Param("deviceNumber") String deviceNumber,@Param("loginUser") String loginUser);
 }

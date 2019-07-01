@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('人员列表')" />
+</head>
+<style>
+    .uploadMes{
+        font-size: 10px;
+        color: red;
+        display: block;
+    }
+</style>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            人员编号：<input type="text" name="personNumber"/>
+                        </li>
+
+                        <li>
+                            人员名：<input type="text" name="name"/>
+                        </li>
+
+                        <li>
+                            ic卡：<input type="text" name="icCard"/>
+                        </li>
+
+                        <li>
+                            id卡号：<input type="text" name="idCard"/>
+                        </li>
+
+
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="console:zhOnlineDevice">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="console:zhOnlineDevice">
+            <i class="fa fa-edit"></i> 修改
+            </a>
+<!--            <a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="console:zhOnlineDevice">-->
+<!--                <i class="fa fa-remove"></i> 删除-->
+<!--            </a>-->
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+
+<!--<div class="modal fade" id="batchAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">-->
+<!--    <div class="modal-dialog">-->
+<!--        <div class="modal-content">-->
+<!--            <div class="modal-header">-->
+<!--                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+<!--                <h4 class="modal-title" id="batchAddLabel">批量添加人员</h4>-->
+<!--            </div>-->
+<!--            <div class="modal-body">-->
+<!--                <span class="uploadMes">要求：上传存在需要添加的人员人脸图片(请选择高清正脸人脸图片)文件夹的压缩包，图片命名规范为 (姓名_ic卡_身份证.jpg/png) 无对应数据使用null占位填充。要求zip压缩。单张图片大小不超过5Mb，压缩包大小50Mb以内 </span>-->
+<!--                上传压缩包:<input type="file" id="zipFile" name="zipFile" accept="application/zip,application/x-zip,application/x-zip-compressed"/>-->
+<!--            </div>-->
+<!--            <div class="modal-footer">-->
+<!--                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>-->
+<!--                <button type="button" class="btn btn-primary" onclick="ok()">提交更改</button>-->
+<!--            </div>-->
+<!--        </div>&lt;!&ndash; /.modal-content &ndash;&gt;-->
+<!--    </div>&lt;!&ndash; /.modal &ndash;&gt;-->
+<!--</div>-->
+
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('console:zhOnlineDevice')}]];
+    var removeFlag = [[${@permission.hasPermi('console:zhOnlineDevice')}]];
+    var prefix = ctx + "console/zhOnlineDevice";
+
+    $(function() {
+        var options = {
+            url: prefix + "/personList",
+            createUrl: prefix + "/personAddView",
+            // batchUrl: prefix + "/batchAdd",
+            updateUrl: prefix + "/personUpdateView/{id}",
+            removeUrl: prefix + "/personDel",
+            modalName: "设备人员",
+            showExport: true,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field : 'id',
+                    title : '',
+                    visible: false
+                },
+                {
+                    field : 'faceImage',
+                    title : '底库照片',
+                    sortable: true,
+                    formatter : function (index,row){
+                        var image = '<a target="_blank"><img style="width: 100px;height: 100px;" src="data:image/png;base64,'+row.faceImage+'"</a>';
+                        return image;
+                    }
+                },
+                {
+                    field : 'personNumber',
+                    title : '人员编号',
+                    sortable: true
+                },
+                {
+                    field : 'name',
+                    title : '人员名',
+                    sortable: true
+                },
+                {
+                    field : 'icCard',
+                    title : 'ic卡',
+                    sortable: true
+                },
+                {
+                    field : 'idCard',
+                    title : 'id卡号',
+                    sortable: true
+                },
+                {
+                    field : 'createTime',
+                    title : '创建时间',
+                    sortable: true
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.personNumber + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

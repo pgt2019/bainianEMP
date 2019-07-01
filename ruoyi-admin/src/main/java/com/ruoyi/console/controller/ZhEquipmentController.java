@@ -159,7 +159,7 @@ public class ZhEquipmentController extends BaseController
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            throw new NullPointerException("连接失败 请检查设备程序是否在运行");
         }
 
 
@@ -268,8 +268,8 @@ public class ZhEquipmentController extends BaseController
         return prefix + "/deviceOption_show";
     }
 
-    String logoUploadData = null;
-    String startLogoUploadData = null;
+    File logoUploadFile = null;
+    File startLogoUploadFile = null;
 
     /**
      * 配置设备信息  保存
@@ -294,8 +294,9 @@ public class ZhEquipmentController extends BaseController
         String verifyIdCard = deviceOption.get("verifyIdCard").toString();
         String voiceHint = deviceOption.get("voiceHint").toString();
 
-        String result = ZhEquipmentUtil.updateDeviceOption(token.toString(),deviceNumber,title,logoUploadData,startLogoUploadData,threshold,identificationType,verifyIdCard,voiceHint,isOutDoor,isOpenLiving,null,null,callBackAddress,saveLocalRecordTime,null,deviceIp);
+        String result = ZhEquipmentUtil.updateDeviceOption(token.toString(),deviceNumber,title,logoUploadFile,startLogoUploadFile,threshold,identificationType,verifyIdCard,voiceHint,isOutDoor,isOpenLiving,null,null,callBackAddress,saveLocalRecordTime,null,deviceIp);
         JSONObject jsonObject = JSONObject.parseObject(result);
+        logoUploadFile.delete();
         Object resCode = jsonObject.get("code").toString();
         if(resCode.equals("0")){
             return AjaxResult.success(jsonObject.get("message").toString());
@@ -304,9 +305,9 @@ public class ZhEquipmentController extends BaseController
     }
 
 
-    /**
-     *  设备logo上传
-     */
+//    /**
+//     *  设备logo上传
+//     */
     @RequiresPermissions("console:zhEquipment:list")
     @PostMapping("/deviceOption/logoUpload")
     @ResponseBody
@@ -314,14 +315,14 @@ public class ZhEquipmentController extends BaseController
     {
         if (!uploadImg.isEmpty()) {
             try {
-                HttpSession session = request.getSession();
-                Object token = session.getAttribute("token");                           //获取token
-                Object personNumber = session.getAttribute("personNumber");
-                String deviceIp = "http://"+session.getAttribute("deviceIp")+":8089";           //设备ip
-                BASE64Encoder encoder = new BASE64Encoder();
-                String data = encoder.encode(uploadImg.getBytes());                        // 通过base64来转化图片
-                data = URLEncoder.encode(data,"utf-8");
-                logoUploadData = data;
+                // 获取文件名
+                String fileName = uploadImg.getOriginalFilename();
+                // 获取文件后缀
+                String prefix=fileName.substring(fileName.lastIndexOf("."));
+                // 用uuid作为文件名，防止生成的临时文件重复
+                logoUploadFile = File.createTempFile("logo", prefix);
+                // MultipartFile to File
+                uploadImg.transferTo(logoUploadFile);
                 return AjaxResult.success("提交成功");
             } catch (Exception e) {
                 e.printStackTrace();

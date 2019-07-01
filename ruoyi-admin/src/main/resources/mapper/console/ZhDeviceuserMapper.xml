@@ -34,6 +34,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              <if test="createTime != null "> and create_time = #{createTime}</if>
          </where>
     </select>
+
+    <select id="selectunAuthUser" parameterType="String" resultMap="ZhDeviceuserResult">
+        <include refid="selectZhDeviceuserVo"/>
+        <where>
+            1 = 1
+            <if test="loginUser != null and loginUser != ''" >
+                and create_by = #{loginUser}
+            </if>
+            and personNumber not in (select personNumber from zh_user_device where 1=1
+                <if test="deviceNumber != null and deviceNumber != ''">
+                    and deviceNumber = #{deviceNumber}
+                </if>
+            )
+        </where>
+    </select>
     
     <select id="selectZhDeviceuserById" parameterType="Integer" resultMap="ZhDeviceuserResult">
         <include refid="selectZhDeviceuserVo"/>
@@ -81,6 +96,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<delete id="deleteZhDeviceuserById" parameterType="Integer">
         delete from zh_deviceuser where id = #{id}
+    </delete>
+
+    <delete id="deleteZhDeviceuserByPersonNumber" parameterType="String">
+        delete from zh_deviceuser where personNumber = #{personNumber}
     </delete>
 	
     <delete id="deleteZhDeviceuserByIds" parameterType="String">

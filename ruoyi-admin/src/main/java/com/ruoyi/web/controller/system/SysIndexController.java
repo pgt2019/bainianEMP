@@ -1,6 +1,8 @@
 package com.ruoyi.web.controller.system;
 
 import java.util.List;
+
+import com.ruoyi.system.domain.SysRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -34,6 +36,14 @@ public class SysIndexController extends BaseController
         mmap.put("menus", menus);
         mmap.put("user", user);
         mmap.put("copyrightYear", Global.getCopyrightYear());
+        List<SysRole> templist = user.getRoles();
+        for(SysRole sysRole : templist){  //   101 为在线客户权限  在线客户不显示首页内容
+            if(sysRole.getRoleId() == 101){
+                mmap.put("userOL","0");
+            }else{
+                mmap.put("userOL","1");
+            }
+        }
         return "index";
     }
 

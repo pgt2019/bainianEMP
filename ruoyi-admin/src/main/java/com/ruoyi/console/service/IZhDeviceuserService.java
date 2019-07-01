@@ -50,5 +50,19 @@ public interface IZhDeviceuserService
      * @return 结果
      */
 	public int deleteZhDeviceuserByIds(String ids);
-	
+
+	/**
+	 * 根据人员编号删除
+	 * @param personNumber
+	 * @return
+	 */
+	public int deleteZhDeviceuserByPersonNumber(String personNumber);
+
+
+	/**
+	 * 根据授权信息筛选未授权的用户
+	 */
+	public List<ZhDeviceuser> selectunAuthUser(String deviceNumber,String loginUser);
+
+
 }

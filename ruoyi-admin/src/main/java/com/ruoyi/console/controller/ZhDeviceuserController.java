@@ -1,12 +1,16 @@
 package com.ruoyi.console.controller;
 
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -15,14 +19,17 @@ import com.ruoyi.console.domain.ZhUser;
 import com.ruoyi.console.domain.ZhUserFaceImages;
 import com.ruoyi.console.service.IZhFaceimageService;
 import com.ruoyi.console.utils.GetMD5;
+import com.ruoyi.console.utils.HttpRequest;
 import com.ruoyi.console.utils.ImgStrToBase64;
 import com.ruoyi.console.utils.ZhEquipmentUtil;
 import com.ruoyi.framework.util.ShiroUtils;
 import com.ruoyi.system.domain.SysUser;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.tomcat.jni.Error;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +43,9 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -163,30 +172,36 @@ public class ZhDeviceuserController extends BaseController
 	 */
 	@GetMapping("/userSync")
 	@ResponseBody
-	public AjaxResult userSync(HttpServletRequest request) throws ClassCastException, UnknownHostException, UnsupportedEncodingException {
-		String id = request.getParameter("ids");
-		HttpSession session = request.getSession();
-		SysUser user = ShiroUtils.getSysUser();
-		String loginName = user.getLoginName();
-		String ids = id.substring(0,id.indexOf(","));                                   //data-id 所选绑定的设备id获取
-		String meid = id.substring(id.indexOf(",")+1,id.indexOf(",",id.indexOf(",")+1));         //设备号
-		String activationCode = id.substring(id.indexOf(",",id.indexOf(",")+1)+1,id.lastIndexOf(","));         //设备号
-		String deviceIp = id.substring(id.lastIndexOf(",")+1);                //设备ip
-		session.setAttribute("dataId",ids);
-		session.setAttribute("meid",meid);
-		session.setAttribute("deviceIp",deviceIp);
-		deviceIp = "http://"+deviceIp+":8089";           //设备ip
-		String ip = InetAddress.getLocalHost().getHostAddress();                        //获得本地ip
-		long timestamp = new Date().getTime()/1000;                                    //时间戳
-		String sign = GetMD5.MD5(activationCode + meid + timestamp);          //鉴权md5
-		String result = ZhEquipmentUtil.getToken(ip,meid,activationCode,timestamp,sign,deviceIp);//鉴权请求
-		JSONObject jsonObject = JSONObject.parseObject(result);
-		Object resCode = jsonObject.get("code").toString();
-		if(resCode.equals("0")){
-			session.setAttribute("token",jsonObject.get("data"));                   //token存入session
-			return getDeviceUserList(jsonObject.get("data").toString(),deviceIp,0,loginName);
+	public AjaxResult userSync(HttpServletRequest request) throws Exception {
+		try {
+			String id = request.getParameter("ids");
+			HttpSession session = request.getSession();
+			SysUser user = ShiroUtils.getSysUser();
+			String loginName = user.getLoginName();
+			String ids = id.substring(0,id.indexOf(","));                                   //data-id 所选绑定的设备id获取
+			String meid = id.substring(id.indexOf(",")+1,id.indexOf(",",id.indexOf(",")+1));         //设备号
+			String activationCode = id.substring(id.indexOf(",",id.indexOf(",")+1)+1,id.lastIndexOf(","));         //设备号
+			String deviceIp = id.substring(id.lastIndexOf(",")+1);                //设备ip
+			if(!HttpRequest.isConnect(deviceIp)){
+				return AjaxResult.error("设备连接超时  请检查设备在线状态");
+			}
+			session.setAttribute("dataId",ids);
+			session.setAttribute("meid",meid);
+			session.setAttribute("deviceIp",deviceIp);
+			deviceIp = "http://"+deviceIp+":8089";           //设备ip
+			String ip = InetAddress.getLocalHost().getHostAddress();                        //获得本地ip
+			long timestamp = new Date().getTime()/1000;                                    //时间戳
+			String sign = GetMD5.MD5(activationCode + meid + timestamp);          //鉴权md5
+			String result = ZhEquipmentUtil.getToken(ip,meid,activationCode,timestamp,sign,deviceIp);//鉴权请求
+			JSONObject jsonObject = JSONObject.parseObject(result);
+			Object resCode = jsonObject.get("code").toString();
+			if(resCode.equals("0")){
+				session.setAttribute("token",jsonObject.get("data"));                   //token存入session
+				return getDeviceUserList(jsonObject.get("data").toString(),deviceIp,0,loginName);
+			}
+		} catch (Exception e) {
+			throw new Exception("同步失败 连接错误");
 		}
-
 		return AjaxResult.error("同步失败 请检查设备网络连接");
 	}
 
@@ -250,6 +265,63 @@ public class ZhDeviceuserController extends BaseController
 			return AjaxResult.success("同步完成");
 		}
 		return AjaxResult.error("同步失败 请检查设备网络连接");
+	}
+
+	@PostMapping("/zipUpload")
+	@ResponseBody
+	public AjaxResult zipUpload(MultipartFile zipFile, HttpServletRequest request){
+		if(!zipFile.isEmpty()){
+			try {
+				String path = ResourceUtils.getURL("classpath:").getPath();
+				String fileName = zipFile.getOriginalFilename();   //得到上传时候的文件名
+				String prefix=fileName.substring(fileName.lastIndexOf("."));
+                // 用uuid作为文件名，防止生成的临时文件重复
+				File tempFile = File.createTempFile("faceimage", prefix,new File(path));
+				zipFile.transferTo(tempFile);
+				readZipFile(tempFile.getPath());
+				tempFile.delete();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return AjaxResult.error("mmp");
+	}
+
+	private static void readZipFile(String file){
+		ZipFile zf = null;
+		try {
+			zf = new ZipFile(file);
+			InputStream in = new BufferedInputStream(new FileInputStream(file));
+			ZipInputStream zin = new ZipInputStream(in, Charset.forName("GBK"));
+			ZipEntry ze;
+			while ((ze = zin.getNextEntry()) != null) {
+				if (ze.isDirectory()) {
+					// System.out.print("directory - " + ze.getName() + " : "
+					// + ze.getSize() + " bytes");
+					// System.out.println();
+				} else {
+					System.err.println("file - " + ze.getName() + " : "
+							+ ze.getSize() + " bytes");
+					long size = ze.getSize();
+					if (size > 0) {
+
+						System.out.println(zf.getInputStream(ze));
+
+						BufferedReader br = new BufferedReader(
+								new InputStreamReader(zf.getInputStream(ze)));
+						String line;
+						while ((line = br.readLine()) != null) {
+							System.out.println(line);
+						}
+						br.close();
+					}
+					System.out.println();
+				}
+			}
+			zin.closeEntry();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

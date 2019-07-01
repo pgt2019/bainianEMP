@@ -7,6 +7,7 @@
 	<title th:text="${title}"></title>
 	<link rel="shortcut icon" href="favicon.ico">
 	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+	<link th:href="@{/ajax/libs/bootstrap-select/css/bootstrap-select.min.css}" rel="stylesheet"/>
 	<link th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
 	<!-- bootstrap-table 表格插件样式 -->
 	<link th:href="@{/ajax/libs/bootstrap-table/bootstrap-table.min.css}" rel="stylesheet"/>
@@ -19,6 +20,9 @@
 <div th:fragment="footer">
 	<script th:src="@{/js/jquery.min.js}"></script>
 	<script th:src="@{/js/bootstrap.min.js}"></script>
+	<!-- bootstrap-select 下拉框插件 -->
+	<script th:src="@{/ajax/libs/bootstrap-select/js/bootstrap-select.min.js}"></script>
+	<script th:src="@{/ajax/libs/bootstrap-select/js/i18n/defaults-zh_CN.min.js}"></script>
 	<!-- bootstrap-table 表格插件 -->
 	<script th:src="@{/ajax/libs/bootstrap-table/bootstrap-table.min.js}"></script>
 	<script th:src="@{/ajax/libs/bootstrap-table/locale/bootstrap-table-zh-CN.min.js}"></script>

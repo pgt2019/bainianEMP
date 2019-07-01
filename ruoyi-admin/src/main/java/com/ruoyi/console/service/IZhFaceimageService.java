@@ -50,5 +50,12 @@ public interface IZhFaceimageService
      * @return 结果
      */
 	public int deleteZhFaceimageByIds(String ids);
-	
+
+	/**
+	 * 根据人员编号删除
+	 * @param personNumber
+	 * @return
+	 */
+	public int deleteZhFaceimageByPersonNumber(String personNumber);
+
 }

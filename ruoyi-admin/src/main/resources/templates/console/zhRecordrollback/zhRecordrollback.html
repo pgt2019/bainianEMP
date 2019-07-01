@@ -67,11 +67,11 @@
 				<!--<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="console:zhRecordrollback:edit">-->
 					<!--<i class="fa fa-edit"></i> 修改-->
 				<!--</a>-->
-				<!--<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="console:zhRecordrollback:remove">-->
-					<!--<i class="fa fa-remove"></i> 删除-->
-				<!--</a>-->
+				<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="console:zhRecordrollback:remove">
+					<i class="fa fa-remove"></i> 删除
+				</a>
 				<a class="btn btn-warning" th:style="${hiddenStatue == '1' ? 'display:none' : ''}" th:href="@{/console/zhEquipment/toRecord}" >
-						<i class="fa fa-list"></i> 查看本地记录
+						<i class="fa fa-list"></i> 查看设备识别记录
 				 </a>
 			</div>
 			<div class="col-sm-12 select-table table-striped">

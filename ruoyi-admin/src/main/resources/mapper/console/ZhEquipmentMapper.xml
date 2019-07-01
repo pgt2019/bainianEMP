@@ -11,10 +11,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="ip"    column="ip"    />
+        <result property="deviceName" column="deviceName" />
     </resultMap>
 	
 	<sql id="selectZhEquipmentVo">
-        select id, meid, regkey, create_by, create_time, ip from zh_equipment
+        select id, meid, regkey, create_by, create_time, ip ,deviceName from zh_equipment
     </sql>
 	
     <select id="selectZhEquipmentList" parameterType="ZhEquipment" resultMap="ZhEquipmentResult">
@@ -26,6 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
              <if test="createTime != null "> and create_time = #{createTime}</if>
              <if test="ip != null "> and ip = #{ip}</if>
+              <if test="deviceName != null">and deviceName = #{deviceName}</if>
          </where>
     </select>
     
@@ -43,6 +45,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="createBy != null  and createBy != ''  ">create_by,</if>
 			<if test="createTime != null  ">create_time,</if>
 			<if test="ip != null  ">ip,</if>
+			<if test="deviceName != null">deviceName,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null  ">#{id},</if>
@@ -51,6 +54,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
 			<if test="createTime != null  ">#{createTime},</if>
 			<if test="ip != null  ">#{ip},</if>
+			<if test="deviceName != null">#{deviceName},</if>
          </trim>
     </insert>
 	 
@@ -62,6 +66,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
             <if test="createTime != null  ">create_time = #{createTime},</if>
             <if test="ip != null  ">ip = #{ip},</if>
+            <if test="deviceName != null">deviceName = #{deviceName}</if>
         </trim>
         where id = #{id}
     </update>

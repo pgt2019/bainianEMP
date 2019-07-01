@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改设备人员')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-zhDeviceuser-edit" th:object="${zhDeviceuser}">
+        <input id="id" name="id" th:field="*{id}"  type="hidden">
+        <div class="form-group" type="hidden">
+            <label class="col-sm-3 control-label">人员编号：</label>
+            <div class="col-sm-8">
+                <input id="personNumber" name="personNumber" th:field="*{personNumber}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">人员名：</label>
+            <div class="col-sm-8">
+                <input id="name" name="name" th:field="*{name}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">ic卡：</label>
+            <div class="col-sm-8">
+                <input id="icCard" name="icCard" th:field="*{icCard}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">id卡号：</label>
+            <div class="col-sm-8">
+                <input id="idCard" name="idCard" th:field="*{idCard}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label" style="line-height: 34px;margin-bottom: 20px;">授权设备：</label>
+            <div class="col-sm-8">
+                <select id="selectDevice" name="select" class="selectpicker show-tick form-control" multiple data-live-search="true" data-actions-box="true">
+                </select>
+            </div>
+        </div>
+
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script type="text/javascript">
+    var prefix = ctx + "console/zhOnlineDevice";
+    $("#form-zhDeviceuser-edit").validate({
+        rules:{
+            xxxx:{
+                required:true,
+            },
+        },
+        focusCleanup: true
+    });
+
+    $(window).on('load', function () {
+        $('.selectpicker').selectpicker();
+        var personNumber = $("#personNumber").val();
+        $.ajax({
+            url:prefix+"/queryDevice?personNumber="+personNumber,
+            type:"GET",
+            success:function(data){
+                zhEquipmentList = data.data.zhEquipmentList;
+                var str;
+                for(var i = 0;i<zhEquipmentList.length;i++){
+                    str += '<option value="'+zhEquipmentList[i].meid+'">'+zhEquipmentList[i].deviceName+'</option>';
+                }
+                $(".selectpicker").html(str);
+
+                str='';
+                zhUserDeviceList = data.data.zhUserDeviceList;
+                for(var i = 0;i<zhUserDeviceList.length;i++){
+                    str += ","+zhUserDeviceList[i].deviceNumber;
+                }
+                var arr=str.split(',');
+                $('.selectpicker').selectpicker('val',arr);
+                $('.selectpicker').selectpicker('refresh');//动态刷新
+            }
+        });
+    });
+
+    function submitHandler() {
+            var deviceNumber = $("#selectDevice").val();
+            var personNumber = $("#personNumber").val();
+            if ($.validate.form()) {
+                var data = new FormData();
+                // var img = document.getElementById("faceFile");
+                // var fileObj = img.files[0];
+                // data.append("file", fileObj);
+                data.append("id",$('#id').val());
+                data.append("name",$('#name').val());
+                data.append("icCard",$('#icCard').val());
+                data.append("idCard",$('#idCard').val());
+                data.append("deviceNumber",deviceNumber);
+                data.append("personNumber",personNumber);
+                var config = {
+                    url: prefix + "/personUpdate",
+                    type: "post",
+                    dataType: "json",
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                    beforeSend: function () {
+                        $.modal.loading("正在处理中，请稍后...");
+                        $.modal.disable();
+                    },
+                    success: function(result) {
+                        $.operate.successCallback(result);
+                    }
+                };
+                $.ajax(config)
+            }
+    }
+</script>
+</body>
+</html>

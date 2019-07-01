@@ -54,9 +54,9 @@
 				<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="console:zhDeviceuser:remove">
 					<i class="fa fa-remove"></i> 删除
 				</a>
-				<a class="btn btn-warning" data-toggle="modal" data-target="#batchAdd" >
-						<i class="fa fa-download"></i> 批量添加
-				 </a>
+<!--				<a class="btn btn-warning" data-toggle="modal" data-target="#batchAdd" >-->
+<!--						<i class="fa fa-download"></i> 批量添加-->
+<!--				 </a>-->
 			</div>
 			<div class="col-sm-12 select-table table-striped">
 				<table id="bootstrap-table" data-mobile-responsive="true"></table>
@@ -72,14 +72,12 @@
 					 <h4 class="modal-title" id="batchAddLabel">批量添加人员</h4>
 				 </div>
 				 <div class="modal-body">
-					 <span class="uploadMes">要求：上传存在需要添加的人员人脸图片文件夹的压缩包，图片命名规范为 (姓名_ic卡_身份证.jpg/png) 无对应数据使用null占位填充。压缩包要求rar或zip。单张图片大小不超过5Mb，压缩包大小50Mb以内 </span>
-					 上传压缩包:<input type="file" name="zipFile"/>
-					 解压密码(为空可不传):<input type="text" name="password"/></br>
-					 <button id="ok" value="测试">测试压缩包</button>
+					 <span class="uploadMes">要求：上传存在需要添加的人员人脸图片(请选择高清正脸人脸图片)文件夹的压缩包，图片命名规范为 (姓名_ic卡_身份证.jpg/png) 无对应数据使用null占位填充。要求zip压缩。单张图片大小不超过5Mb，压缩包大小50Mb以内 </span>
+					 上传压缩包:<input type="file" id="zipFile" name="zipFile" accept="application/zip,application/x-zip,application/x-zip-compressed"/>
 				 </div>
 				 <div class="modal-footer">
 					 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					 <button type="button" class="btn btn-primary" onclick="checkImage('logo')">提交更改</button>
+					 <button type="button" class="btn btn-primary" onclick="ok()">提交更改</button>
 				 </div>
 			 </div><!-- /.modal-content -->
 		 </div><!-- /.modal -->
@@ -91,6 +89,42 @@
         var removeFlag = [[${@permission.hasPermi('console:zhDeviceuser:remove')}]];
         var prefix = ctx + "console/zhDeviceuser";
         var facePrefix = ctx + "console/zhFaceimage";
+
+		function ok(){
+			var fp  = $("#zipFile");
+			var lg = fp[0].files.length;
+			var items = fp[0].files;
+			if(lg > 0){
+				for(var i = 0; i < lg; i++){
+					var fileName = items[i].name;
+					var fileSize = items[i].size;
+					var fileType = items[i].type;
+
+					if(fileSize > 6250000){
+						alert("文件过大 请减少压缩包体积");
+					}
+
+					if(fileType != "application/x-zip-compressed" && fileType != "application/zip" && fileType != "application/x-zip"){
+						alert(fileType);
+					}
+
+					if(fp != null){
+						var formdata = new FormData();
+						formdata.append("zipFile", fp[0].files[0]);
+						$.ajax({
+							url: prefix + "/zipUpload",
+							data: formdata,
+							type: "post",
+							processData: false,
+							contentType: false,
+							success: function(result) {
+								alert(result.msg);
+							}
+						})
+					}
+				}
+			}
+		}
 
         $(function() {
             var options = {

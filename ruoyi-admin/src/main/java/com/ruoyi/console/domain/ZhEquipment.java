@@ -19,7 +19,7 @@ public class ZhEquipment extends BaseEntity
 	/**  */
 	private Integer id;
 	/** 设备号 */
-	private String meid;
+	private String meid;        //deviceNumber  设备号
 	/** 激活码 */
 	private String regkey;
 
@@ -28,6 +28,16 @@ public class ZhEquipment extends BaseEntity
 	private Date createTime;
 
 	private String ip;
+
+	private String deviceName;
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
 
 	public String getIp() {
 		return ip;
